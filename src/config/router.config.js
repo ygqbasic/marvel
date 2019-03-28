@@ -42,34 +42,34 @@ export const asyncRouterMap = [
       },
       // system
       {
-        path: '/list',
-        name: 'list',
+        path: '/system',
+        name: 'system',
         component: PageView,
-        redirect: '/list/query-list',
+        redirect: '/system/query-list',
         meta: { title: '系统配置', icon: 'setting', permission: [ 'dashboard' ] },
         children: [
           {
-            path: '/list/user-list',
+            path: '/system/user-list',
             name: 'UserList',
-            component: () => import('@/views/list/UserList'),
+            component: () => import('@/views/system/UserList'),
             meta: { title: '用户列表', keepAlive: true, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/list/role-list',
+            path: '/system/role-list',
             name: 'RoleList',
-            component: () => import('@/views/list/RoleList'),
+            component: () => import('@/views/system/RoleList'),
             meta: { title: '角色列表', keepAlive: true, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/list/system-role',
+            path: '/system/system-role',
             name: 'SystemRole',
-            component: () => import('@/views/role/RoleList'),
+            component: () => import('@/views/system/RoleList'),
             meta: { title: '角色列表2', keepAlive: true, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/list/permission-list',
+            path: '/system/permission-list',
             name: 'PermissionList',
-            component: () => import('@/views/list/PermissionList'),
+            component: () => import('@/views/system/PermissionList'),
             meta: { title: '权限列表', keepAlive: true, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
           }
         ]
@@ -79,29 +79,29 @@ export const asyncRouterMap = [
         path: '/base',
         name: 'base',
         component: PageView,
-        redirect: '/list/query-list',
+        redirect: '/base/query-list',
         meta: { title: '基础设施', icon: 'radar-chart', hiddenHeaderContent: true, permission: [ 'dashboard' ] },
         children: [
           {
-            path: '/list/card',
+            path: '/base/cluster',
             name: 'cluster',
             hiddenHeaderContent: true,
-            component: () => import('@/views/list/CardList'),
+            component: () => import('@/views/base/ClusterList'),
             meta: { title: '群集管理', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/list/query-list',
+            path: '/base/query-list',
             name: 'QueryListWrapper',
             hiddenHeaderContent: true,
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/list/TableList'),
+            component: () => import('@/views/base/TableList'),
             meta: { title: '证书管理', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
             hiddenHeaderContent: true,
-            path: '/list/basic-list',
+            path: '/base/basic-list',
             name: 'BasicList',
-            component: () => import('@/views/list/StandardList'),
+            component: () => import('@/views/base/StandardList'),
             meta: { title: '资源配置', keepAlive: true, permission: [ 'dashboard' ] }
           }
         ]

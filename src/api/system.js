@@ -19,6 +19,14 @@ export function getUserList (parameter) {
   })
 }
 
+export function saveUser (parameter) {
+  return axios({
+    url: api.user,
+    method: parameter.id === 0 ? 'post' : 'put',
+    data: parameter
+  })
+}
+
 export function getRoleList (parameter) {
   return axios({
     url: api.role,
@@ -60,3 +68,5 @@ export function saveService (parameter) {
     data: parameter
   })
 }
+
+

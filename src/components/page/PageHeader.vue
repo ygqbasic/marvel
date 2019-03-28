@@ -1,8 +1,8 @@
 <template>
   <div class="page-header">
-    <div class="page-header-index-wide">
-      <a-breadcrumb class="breadcrumb">
-        <a-breadcrumb-item v-for="(item, index) in breadList" :key="index">
+    <div class="page-header-index-wide" type="flex">
+      <a-breadcrumb class="breadcrumb" justify="end">
+        <a-breadcrumb-item v-for="(item, index) in breadList" :key="index" justify="end">
           <router-link
             v-if="item.name != name && index != 1"
             :to="{ path: item.path === '' ? '/' : item.path }"
