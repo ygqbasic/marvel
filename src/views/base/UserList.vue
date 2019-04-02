@@ -32,6 +32,11 @@
       :columns="columns"
       :data="loadData"
     >
+      <template
+        slot="status"
+        slot-scope="status">
+        <a-badge :status="IsDel | statusTypeFilter" :text="IsDel | statusFilter"/>
+      </template>
       <div
         slot="expandedRowRender"
         slot-scope="record"
@@ -108,7 +113,7 @@
           hasFeedback
           validateStatus="warning"
         >
-          <a-select v-model="mdl.status">
+          <a-select v-defaultValue="mdl.status" >
             <a-select-option value="1">正常</a-select-option>
             <a-select-option value="2">禁用</a-select-option>
           </a-select>
@@ -214,6 +219,23 @@ export default {
       selectedRows: []
     }
   },
+  filters: {
+    statusFilter (status) {
+      const statusMap = {
+        '0': '有效1',
+        '1': '无效'
+      }
+      return statusMap[status]
+    },
+    statusTypeFilter (type) {
+      const statusTypeMap = {
+        '0': 'success',
+        '1': 'error'
+      }
+      return statusTypeMap[type]
+    }
+  },
+
   created () {
     getServiceList().then(res => {
       console.log('getServiceList.call()', res)

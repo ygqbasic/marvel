@@ -153,12 +153,16 @@
         <template v-else>
           <a-card :hoverable="true">
             <a-card-meta>
-              <div style="margin-bottom: 3px" slot="title">{{ item.title }}</div>
-              <a-avatar class="card-avatar" slot="avatar" :src="item.avatar" size="large"/>
-              <div class="meta-content" slot="description">{{ item.content }}</div>
+              <div style="margin-bottom: 3px" slot="title">{{ item.ClusterAlias }}</div>
+              <a-avatar class="card-avatar" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" size="large"/>
+              <div class="meta-content" slot="description">
+                名称 {{ item.ClusterName }} 类型 {{ item.ClusterType }} <br />
+                节点数： {{ item.Nodes }} &nbsp;&nbsp; 服务数： {{ item.Nodes }} <br />
+                CPU： {{ item.CpuNum }} &nbsp;&nbsp; 内存： {{ item.MemSize }}
+              </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
-              <a>查看</a>
+              <a @click="showDetail(item)">查看</a>
               <a type="danger">删除</a>
             </template>
           </a-card>
@@ -169,16 +173,18 @@
 </template>
 
 <script>
+import { getClusterList } from '@/api/cluster'
 
 const dataSource = []
 dataSource.push(null)
-for (let i = 0; i < 5; i++) {
-  dataSource.push({
-    title: '开发环境群集',
-    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png',
-    content: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
+getClusterList()
+  .then(res => {
+    var cs = res.result
+    console.log(cs)
+    for (let i = 0; i < cs.length; i++) {
+      dataSource.push(cs[i])
+    }
   })
-}
 
 export default {
   name: 'ClusterList',
@@ -197,6 +203,9 @@ export default {
     }
   },
   methods: {
+    showDetail (pam) {
+      this.$router.push('/base/clusterdetail/' + pam.ClusterName)
+    },
     showDrawer () {
       this.visible = true
     },

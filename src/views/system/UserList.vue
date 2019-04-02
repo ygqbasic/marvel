@@ -28,8 +28,12 @@
       :columns="columns"
       :data="loadData"
     >
-      <span slot="status" slot-scope="text" v-html="renderStatus(text)">
-      </span>
+      <template
+        slot="IsDel"
+        slot-scope="text">
+        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter"/>
+      </template>
+
       <div
         slot="expandedRowRender"
         slot-scope="record"
@@ -223,7 +227,7 @@ export default {
         {
           title: '状态',
           dataIndex: 'IsDel',
-          scopedSlots: { customRender: 'status' }
+          scopedSlots: { customRender: 'IsDel' }
         },
         {
           title: '描述信息',
@@ -259,10 +263,17 @@ export default {
   filters: {
     statusFilter (status) {
       const statusMap = {
-        0: '<div class="Running"><div><i class="fa fa-circle"></i><span>&nbsp;有效</span>',
-        1: '禁用'
+        0: '有效',
+        1: '无效'
       }
       return statusMap[status]
+    },
+    statusTypeFilter (type) {
+      const statusTypeMap = {
+        0: 'success',
+        1: 'error'
+      }
+      return statusTypeMap[type]
     }
   },
   created () {
@@ -295,13 +306,6 @@ export default {
     },
     toggleAdvanced () {
       this.advanced = !this.advanced
-    },
-    renderStatus (s) {
-      if (s === 0) {
-        return '<span style="color:green">&nbsp;有效</span>';
-      } else {
-        return '<span style="color:red">&nbsp;无效</span>';
-      }
     }
   },
   watch: {

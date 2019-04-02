@@ -11,9 +11,9 @@
       <v-interval
         :shape="['liquid-fill-gauge']"
         position="transfer*value"
-        color=""
+        :color="color"
         :v-style="{
-          lineWidth: 10,
+          lineWidth: 2,
           opacity: 0.75
         }"
         :tooltip="[
@@ -32,12 +32,12 @@
         type="text"
         :top="true"
         :position="{
-          gender: row.transfer,
+          transfer: row.transfer,
           value: 45
         }"
         :content="row.value + '%'"
         :v-style="{
-          fontSize: 100,
+          fontSize: 28,
           textAlign: 'center',
           opacity: 0.75,
         }"
@@ -57,6 +57,18 @@ export default {
     width: {
       type: Number,
       default: 0
+    },
+    data: {
+      type: Array,
+      default: null
+    },
+    scale: {
+      type: Array,
+      default: null
+    },
+    color: {
+      type: String,
+      default: '#1890ff'
     }
   }
 }

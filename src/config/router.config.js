@@ -106,7 +106,24 @@ export const asyncRouterMap = [
           }
         ]
       },
-
+      {
+        path: '/base/detail/:name',
+        name: 'base',
+        hidden: true,
+        component: RouteView,
+        redirect: '/base/clusterdetail/:name',
+        meta: { title: '基础设施', icon: 'radar-chart', hiddenHeaderContent: true, permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/base/clusterdetail/:name',
+            name: 'clusterdetail',
+            props: true,
+            hiddenHeaderContent: true,
+            component: () => import('@/views/base/ClusterDetail'),
+            meta: { title: '群集详情', keepAlive: true, permission: [ 'dashboard' ] }
+          }
+        ]
+      },
       // forms
       {
         path: '/form',

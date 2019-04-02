@@ -2,17 +2,19 @@
   <!-- , width: fixedHeader ? `calc(100% - ${sidebarOpened ? 256 : 80}px)` : '100%'  -->
   <a-layout-header v-if="!headerBarFixed" :class="[fixedHeader && 'ant-header-fixedHeader', sidebarOpened ? 'ant-header-side-opened' : 'ant-header-side-closed', ]" :style="{ padding: '0' }">
     <div v-if="mode === 'sidemenu'" class="header">
-      <a-icon
-        v-if="device==='mobile'"
-        class="trigger"
-        :type="collapsed ? 'menu-fold' : 'menu-unfold'"
-        @click="toggle"></a-icon>
-      <a-icon
-        v-else
-        class="trigger"
-        :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-        @click="toggle"/>
-
+      <div class="left-menu">
+        <a-icon
+          v-if="device==='mobile'"
+          class="trigger"
+          :type="collapsed ? 'menu-fold' : 'menu-unfold'"
+          @click="toggle"></a-icon>
+        <a-icon
+          v-else
+          class="trigger"
+          :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+          @click="toggle"/>
+        <tenant-select></tenant-select>
+      </div>
       <user-menu></user-menu>
     </div>
     <div v-else :class="['top-nav-header-index', theme]">
@@ -40,6 +42,7 @@
 
 <script>
 import UserMenu from '../tools/UserMenu'
+import TenantSelect from '../tools/TenantSelect'
 import SMenu from '../menu/'
 import Logo from '../tools/Logo'
 
@@ -48,6 +51,7 @@ import { mixin } from '@/utils/mixin.js'
 export default {
   name: 'GlobalHeader',
   components: {
+    TenantSelect,
     UserMenu,
     SMenu,
     Logo
@@ -106,3 +110,12 @@ export default {
   }
 }
 </script>
+<style>
+.header{
+  display: flex;
+  justify-content: space-between;
+}
+.left-menu{
+  display: flex;
+}
+</style>
