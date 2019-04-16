@@ -1,31 +1,18 @@
 <template>
-  <page-layout :title="clusterDetail.ClusterAlias" logo="/clusterlogo.png">
+  <page-layout :title="appDetail.AppName" logo="/clusterlogo.png">
 
     <detail-list slot="headerContent" size="small" :col="2" class="detail-layout">
-      <detail-list-item term="群集类型">{{ clusterDetail.ClusterType }}
-        <a-tooltip trigger="hover" placement="right">
-          <template slot="title">
-            <div style="color:gray;font-size:12px">
-              <p><span style="color:white;font-size:12px">Standard：</span>基于开源Kubernetes构建</p>
-              <p><span style="color:white;font-size:12px">AKS：</span>基于Azure PaaS Kubernetes构建</p>
-              <p><span style="color:white;font-size:12px">ACK：</span>基于阿里云 PaaS Kubernetes构建</p>
-              <p><span style="color:white;font-size:12px">TCE：</span>基于腾讯云 PaaS Kubernetes构建</p>
-            </div>
-          </template>
-          <a-icon type="question-circle" ></a-icon>
-        </a-tooltip>
-      </detail-list-item>
-      <detail-list-item term="集群标识"><a>{{ clusterDetail.ClusterName }}</a></detail-list-item>
-      <detail-list-item term="创建时间">{{ clusterDetail.CreateTime }}</detail-list-item>
-      <detail-list-item term="创建人">{{ clusterDetail.CreateUser }}</detail-list-item>
-      <!-- <detail-list-item term="备注">{{ clusterDetail.CreateTime }}</detail-list-item> -->
+      <detail-list-item term="所属集群"><a>{{ appDetail.ClusterName }}</a></detail-list-item>
+      <detail-list-item term="资源空间"><a>{{ appDetail.ResourceName }}</a></detail-list-item>
+      <detail-list-item term="创建时间">{{ appDetail.CreateTime }}</detail-list-item>
+      <detail-list-item term="创建人">{{ appDetail.CreateUser }}</detail-list-item>
+      <!-- <detail-list-item term="备注">{{ appDetail.CreateTime }}</detail-list-item> -->
     </detail-list>
     <a-row slot="extra" class="status-list">
       <a-col :xs="12" :sm="12">
-        <!-- <div class="text">运行中</div> -->
+        <div class="text">运行中</div>
         <div class="heading">
-          <a-spin tip="运行中" />
-          <!-- <a-icon type="sync" :style="{ fontSize: '28px', color: '#52c41a' }" class="running"></a-icon> -->
+          <a-icon type="sync" :style="{ fontSize: '28px' }" spin class="running primary"></a-icon>
         </div>
       </a-col>
       <!-- <a-col :xs="12" :sm="12">
@@ -44,16 +31,6 @@
       <!-- <a-button type="primary" >主操作</a-button> -->
     </template>
 
-    <a-card >
-      <a-row>
-        <a-col :xs="8" :sm="8" v-if="showChart">
-          <liquid name="liquid" :height="100" :width="100" :data="cpuAndMem" :scale="scale" ></liquid>
-        </a-col>
-        <a-col :xs="16" :sm="16">
-        </a-col>
-      </a-row>
-    </a-card>
-
     <!-- 操作 -->
     <a-card
       style="margin-top: 24px"
@@ -64,7 +41,17 @@
     >
       <a-row>
         <a-col :xs="24" :sm="24" v-if="activeTabKey === '1'">
-          <a-button type="primary" icon="plus" @click="handleAddHost()">添加主机</a-button>
+          <div>
+            <a-button type="primary" icon="plus" @click="handleAddHost()">添加服务</a-button>
+            <a-button type="dashed" icon="caret-right" @click="handleAddHost()">启动</a-button>
+            <a-button type="dashed" icon="pause-circle" @click="handleAddHost()">停止</a-button>
+            <a-button type="dashed" icon="thunderbolt" @click="handleAddHost()">重启</a-button>
+            <a-button type="dashed" icon="share-alt" @click="handleAddHost()">伸缩</a-button>
+            <a-button type="dashed" icon="setting" @click="handleAddHost()">配置</a-button>
+            <a-button type="dashed" icon="rise" @click="handleAddHost()">升级</a-button>
+            <a-button type="dashed" icon="plus" @click="handleAddHost()">修改端口</a-button>
+            <a-button type="dashed" icon="medicine-box" @click="handleAddHost()">健康检查</a-button>
+          </div>
           <a-drawer
             title="添加主机"
             :width="720"
@@ -177,19 +164,11 @@
           <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
         </template>
       </a-table>
-      <a-table
-        v-if="activeTabKey === '4'"
-        rowKey="HostId"
-        :columns="operationColumns"
-        :dataSource="operation4"
-        :pagination="false"
-      >
-        <template
-          slot="status"
-          slot-scope="status">
-          <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
+      <div v-if="activeTabKey === '4'">
+        <template>
+          <a-textarea placeholder="Basic usage" :value="appDetail.Yaml" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
         </template>
-      </a-table>
+      </div>
     </a-card>
 
   </page-layout>
@@ -200,7 +179,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
-import { getClusterDetail, getClusterHosts } from '@/api/cluster'
+import { getAppDetail } from '@/api/application'
 
 const DetailListItem = DetailList.Item
 
@@ -220,7 +199,7 @@ export default {
       clusterName: name,
       showAddHostPanel: false,
       showChart: false,
-      clusterDetail: {},
+      appDetail: {},
       form: this.$form.createForm(this),
       scale: [{
         dataKey: 'value',
@@ -231,76 +210,55 @@ export default {
       tabList: [
         {
           key: '1',
-          tab: '主机'
+          tab: '服务'
         },
         {
           key: '2',
-          tab: '插件信息'
+          tab: 'TOP'
         },
         {
           key: '3',
-          tab: '监控'
+          tab: '事件'
         },
         {
           key: '4',
-          tab: '日志'
+          tab: 'YAML'
         }
       ],
       activeTabKey: '1',
 
       operationColumns: [
         {
-          title: '主机IP',
+          title: '服务名称',
           dataIndex: 'HostIp',
           key: 'HostIp'
         },
         {
-          title: '主机标签',
-          dataIndex: 'HostLabel',
-          key: 'HostLabel'
-        },
-        {
-          title: '状态',
+          title: '运行状态',
           dataIndex: 'Status',
           key: 'Status',
           scopedSlots: { customRender: 'status' }
         },
         {
-          title: 'Pod',
-          dataIndex: 'PodNum',
-          key: 'PodNum'
+          title: '资源空间',
+          dataIndex: 'HostLabel',
+          key: 'HostLabel'
         },
         {
-          title: 'Cpu',
-          dataIndex: 'CpuNum',
-          key: 'CpuNum'
+          title: '创建时间',
+          dataIndex: 'CreateTime',
+          key: 'CreateTime'
         },
         {
-          title: '内存大小',
-          dataIndex: 'MemSize',
-          key: 'MemSize'
-        },
-        {
-          title: 'Images',
-          dataIndex: 'ImageNum',
-          key: 'ImageNum'
-        },
-        {
-          title: '版本',
-          dataIndex: 'OsVersion',
-          key: 'OsVersion'
-        },
-        {
-          title: '主机类型',
+          title: '服务地址',
           dataIndex: 'HostType',
           key: 'HostType'
+        },
+        {
+          title: '删除/日志',
+          dataIndex: 'ImageNum',
+          key: 'ImageNum'
         }
-        // ,
-        // {
-        //   title: '创建时间',
-        //   dataIndex: 'ImageNum',
-        //   key: 'ImageNum'
-        // }
       ],
       operation1: [],
       operation2: [],
@@ -326,8 +284,7 @@ export default {
   },
   created () {
     console.log('222')
-    this.getClusterDetail()
-    this.getClusterHosts()
+    this.getAppDetail()
   },
   mounted () {
     console.log(this.$route.params.name)
@@ -340,9 +297,9 @@ export default {
     onAddHostPanelClose () {
       this.showAddHostPanel = false
     },
-    getClusterDetail () {
+    getAppDetail () {
       var that = this
-      getClusterDetail(this.$route.params.name)
+      getAppDetail(this.$route.params.id)
         .then(res => {
           var info = res.result
           console.log('1111')
@@ -350,17 +307,7 @@ export default {
           that.cpuAndMem.push({ name: 'CPU', transfer: 'CPU', value: info.CpuUsePercent })
           that.cpuAndMem.push({ name: '内存', transfer: '内存', value: info.MemUsePercent })
 
-          that.clusterDetail = info
-        })
-    },
-    getClusterHosts () {
-      var that = this
-      getClusterHosts('', this.$route.params.name)
-        .then(res => {
-          var info = res.result.data
-          console.log('Hosts')
-          console.log(info)
-          that.operation1 = info
+          that.appDetail = info
         })
     }
   }
@@ -374,12 +321,12 @@ export default {
   }
   .text {
     text-align: center;
-    color: #52c41a;// rgba(0, 0, 0, .45);
+    color: #1a78c4;// rgba(0, 0, 0, .45);
   }
 
   .heading {
     text-align: center;
-    color: #52c41a;// rgba(0, 0, 0, .85);
+    color: #1a78c4;// rgba(0, 0, 0, .85);
     font-size: 20px;
   }
 

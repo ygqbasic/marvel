@@ -1,17 +1,17 @@
 <template>
   <div class="card-list" ref="content">
     <a-list
-      :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
-      :dataSource="dataSource"
+      :grid="{gutter: 24, lg: 4, md: 2, sm: 1, xs: 1}"
+      :dataSource="appList"
     >
       <a-list-item slot="renderItem" slot-scope="item">
         <template v-if="item === null">
-          <a-button class="new-btn" type="dashed" @click="showDrawer">
+          <a-button class="new-btn" type="dashed" @click="goCreateApp">
             <a-icon type="plus"/>
-            新增集群
+            新建应用
           </a-button>
           <a-drawer
-            title="创建群集"
+            title="创建应用"
             :width="720"
             @close="onClose"
             :visible="visible"
@@ -37,10 +37,8 @@
                       }]"
                       placeholder="请选择群集类型"
                     >
-                      <a-select-option key="Standard" value="Standard">Standard</a-select-option>
-                      <a-select-option key="AKS" value="AKS">AKS</a-select-option>
-                      <a-select-option key="ACK" disabled="true" value="ACK">ACK</a-select-option>
-                      <a-select-option key="TKE" disabled="true" value="TKE">TKE</a-select-option>
+                      <a-select-option value="Kubernetes">Kubernetes</a-select-option>
+                      <!-- <a-select-option value="mao">Maomao Zhou</a-select-option> -->
                     </a-select>
                   </a-form-item>
                 </a-col>
@@ -60,7 +58,7 @@
                   <a-form-item label="访问端口">
                     <a-input
                       v-decorator="['ApiPort', {
-                        rules: [{ required: true, message: '请输入端口号' }]
+                        rules: [{ required: true, message: '请选择群集类型' }]
                       }]"
                       placeholder="请选择群集类型"
                     />
@@ -73,9 +71,9 @@
                   <a-form-item label="Master's IP">
                     <a-input
                       v-decorator="['masterip', {
-                        rules: [{ required: true, message: '请输入主节点主机名或IP' }]
+                        rules: [{ required: true, message: '请输入主节点IP' }]
                       }]"
-                      placeholder="主机名或IP"
+                      placeholder="主节点IP"
                     />
                   </a-form-item>
                 </a-col>
@@ -155,12 +153,12 @@
         <template v-else>
           <a-card :hoverable="true">
             <a-card-meta>
-              <div style="margin-bottom: 3px" slot="title">{{ item.ClusterAlias }}</div>
+              <div style="margin-bottom: 3px" slot="title">{{ item.AppName }}</div>
               <a-avatar class="card-avatar" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" size="large"/>
               <div class="meta-content" slot="description">
-                名称 {{ item.ClusterName }} 类型 {{ item.ClusterType }} <br />
-                节点数： {{ item.Nodes }} &nbsp;&nbsp; 服务数： {{ item.Nodes }} <br />
-                CPU： {{ item.CpuNum }} &nbsp;&nbsp; 内存： {{ item.MemSize }}
+                所属集群 {{ item.ClusterName }} 环境 {{ item.Entname }} <br />
+                容器数 {{ item.ContainerNumber }} &nbsp;&nbsp; 服务数： {{ item.ServiceNumber - item.ServiceFail }} / {{ item.ServiceNumber }} <br />
+                状态 {{ item.Status }} &nbsp;&nbsp; 创建时间 {{ item.CreateTime }}
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
@@ -175,18 +173,7 @@
 </template>
 
 <script>
-import { getClusterList } from '@/api/cluster'
-
-const dataSource = []
-dataSource.push(null)
-getClusterList()
-  .then(res => {
-    var cs = res.result
-    console.log(cs)
-    for (let i = 0; i < cs.length; i++) {
-      dataSource.push(cs[i])
-    }
-  })
+import { getAppList } from '@/api/application'
 
 export default {
   name: 'ClusterList',
@@ -201,18 +188,37 @@ export default {
       // extraImage: 'https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png',
       form: this.$form.createForm(this),
       visible: false,
-      dataSource
+      appList: [null]
     }
+  },
+  created () {
+    console.log('get app list')
+    this.getAppList()
   },
   methods: {
     showDetail (pam) {
-      this.$router.push('/base/clusterdetail/' + pam.ClusterName)
+      this.$router.push(`/application/appdetail/${pam.AppId}`)
+    },
+    goCreateApp () {
+      this.$router.push(`/application/app/add`)
     },
     showDrawer () {
       this.visible = true
     },
     onClose () {
       this.visible = false
+    },
+    getAppList () {
+      var that = this
+      console.log('get app list')
+      getAppList()
+        .then(res => {
+          var cs = res.result
+          console.log(cs)
+          for (let i = 0; i < cs.length; i++) {
+            that.appList.push(cs[i])
+          }
+        })
     }
   }
 }

@@ -30,7 +30,7 @@ export function getClusterName (parameter) {
 
 export function getClusterDetail (parameter) {
   return axios({
-    url: '/cluster/detail/' + parameter,
+    url: `/cluster/detail/${parameter}`,
     method: 'get',
     data: parameter
   })
@@ -38,7 +38,15 @@ export function getClusterDetail (parameter) {
 
 export function getClusterHosts (id, parameter) {
   return axios({
-    url: '/cluster/hosts/' + id + '?cluster=' + parameter,
+    url: `/cluster/hosts/${id}?cluster=${parameter}`,
+    method: 'get',
+    data: parameter
+  })
+}
+
+export function getEnts (parameter) {
+  return axios({
+    url: '/ent',
     method: 'get',
     data: parameter
   })

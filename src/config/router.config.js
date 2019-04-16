@@ -40,6 +40,54 @@ export const asyncRouterMap = [
           }
         ]
       },
+      // application
+      {
+        path: '/application',
+        redirect: '/application/app',
+        component: PageView,
+        meta: { title: '持续发布', icon: 'appstore', permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/application/app',
+            name: 'applist',
+            component: () => import('@/views/application/app/AppList'),
+            meta: { title: '应用管理', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/app/add',
+            name: 'appadd',
+            component: () => import('@/views/application/app/StepForm'),
+            meta: { title: '应用发布', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
+          }
+        ]
+      },
+      // forms
+      {
+        path: '/form',
+        redirect: '/form/base-form',
+        component: PageView,
+        meta: { title: '持续集成', icon: 'interation', permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/form/step-form',
+            name: 'StepForm',
+            component: () => import('@/views/form/stepForm/StepForm'),
+            meta: { title: '应用发布', keepAlive: true, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/form/base-form',
+            name: 'BaseForm',
+            component: () => import('@/views/form/BasicForm'),
+            meta: { title: '基础表单', keepAlive: true, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/form/advanced-form',
+            name: 'AdvanceForm',
+            component: () => import('@/views/form/advancedForm/AdvancedForm'),
+            meta: { title: '高级表单', keepAlive: true, permission: [ 'dashboard' ] }
+          }
+        ]
+      },
       // system
       {
         path: '/system',
@@ -87,7 +135,7 @@ export const asyncRouterMap = [
             name: 'cluster',
             hiddenHeaderContent: true,
             component: () => import('@/views/base/ClusterList'),
-            meta: { title: '群集管理', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '群集管理', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
             path: '/base/query-list',
@@ -95,14 +143,14 @@ export const asyncRouterMap = [
             hiddenHeaderContent: true,
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
             component: () => import('@/views/base/TableList'),
-            meta: { title: '证书管理', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '证书管理', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
             hiddenHeaderContent: true,
             path: '/base/basic-list',
             name: 'BasicList',
             component: () => import('@/views/base/StandardList'),
-            meta: { title: '资源配置', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '资源配置', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
@@ -120,38 +168,18 @@ export const asyncRouterMap = [
             props: true,
             hiddenHeaderContent: true,
             component: () => import('@/views/base/ClusterDetail'),
-            meta: { title: '群集详情', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '群集详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/appdetail/:id',
+            name: 'appdetail',
+            props: true,
+            hiddenHeaderContent: true,
+            component: () => import('@/views/application/app/AppDetail'),
+            meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
-      // forms
-      {
-        path: '/form',
-        redirect: '/form/base-form',
-        component: PageView,
-        meta: { title: '表单页', icon: 'form', permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/form/base-form',
-            name: 'BaseForm',
-            component: () => import('@/views/form/BasicForm'),
-            meta: { title: '基础表单', keepAlive: true, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/form/step-form',
-            name: 'StepForm',
-            component: () => import('@/views/form/stepForm/StepForm'),
-            meta: { title: '分步表单', keepAlive: true, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/form/advanced-form',
-            name: 'AdvanceForm',
-            component: () => import('@/views/form/advancedForm/AdvancedForm'),
-            meta: { title: '高级表单', keepAlive: true, permission: [ 'dashboard' ] }
-          }
-        ]
-      },
-
       // profile
       {
         path: '/profile',
@@ -174,7 +202,6 @@ export const asyncRouterMap = [
           }
         ]
       },
-
       // result
       {
         path: '/result',
