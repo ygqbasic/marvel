@@ -14,6 +14,7 @@
               placeholder="请选择所属环境"
               :defaultValue="selectEnt"
               @change="handleEntChange"
+              v-model="selectEnt"
             >
               <a-select-option v-for="item in ents" :key="item.Entname" :value="item.Entname">{{ item.Entname }}</a-select-option>
             </a-select>
@@ -29,17 +30,19 @@
                 rules: [{ required: true, message: '请选择部署群集' }]
               }]"
               placeholder="请选择群集类型"
+              @click="handleClusterChange"
+              v-model="selectedcluster"
             >
               <a-select-option v-for="item in clusters" :key="item" :value="item">{{ item }}</a-select-option>
-              <!-- <a-select-option value="mao">Maomao Zhou</a-select-option> -->
             </a-select>
           </a-form-item>
         </a-col>
       </a-row>
       <a-alert
         :closable="false"
-        message="已选择镜像reg.testcloud.com/test/admin-project 该镜像可选版本有1   个"
+        :message="'已选择镜像'+chooseCloudImage+' 该镜像可选版本有'+chooseCloudImageCount+'   个'"
         style="margin-bottom: 24px;"
+        v-if="chooseCloudImageId!==''"
       />
       <a-form-item>
         <a-card
@@ -47,34 +50,18 @@
           title="镜像列表">
 
           <div slot="extra">
-            <!-- <a-radio-group>
-              <a-radio-button>全部</a-radio-button>
-              <a-radio-button>进行中</a-radio-button>
-              <a-radio-button>等待中</a-radio-button>
-            </a-radio-group> -->
-            <a-input-search style="margin-left: 16px; width: 272px;" />
+            <a-input-search style="margin-left: 16px; width: 272px;" v-model="cloudimgname" />
           </div>
 
-          <!-- <div class="operate">
-            <a-button type="dashed" style="width: 100%" icon="plus">添加</a-button>
-          </div> -->
-
-          <a-list size="large" :pagination="{showSizeChanger: true, showQuickJumper: true, pageSize: 10, total: 4}">
-            <a-list-item :key="index" v-for="(item, index) in data">
-              <a-list-item-meta :description="item.description">
-                <a-avatar slot="avatar" size="large" shape="square" :src="item.avatar"/>
-                <a slot="title">{{ item.title }}</a>
-              </a-list-item-meta>
-              <div slot="actions">
-                <a>使用该镜像部署</a>
-              </div>
-              <div class="list-content">
-                <div class="list-content-item">
-                  <p>{{ item.owner }}</p>
-                </div>
-              </div>
-            </a-list-item>
-          </a-list>
+          <a-table :columns="columns" :dataSource="data" :loading="tableLoading" :rowKey="record => record.ImageId">
+            <span slot="action" slot-scope="text, record">
+              <a href="javascript:;" v-if="record.ImageId!==chooseCloudImageId" @click="useCloudImagesHandler(record)">使用该镜像部署</a>
+              <a href="javascript:;" v-else style="color:rgb(255, 169, 28)">使用该镜像部署</a>
+            </span>
+            <template slot="Cloudimgname" slot-scope="text, record">
+              {{ record.ServerDomain }}/{{ record.Name }}
+            </template>
+          </a-table>
 
         </a-card>
       </a-form-item>
@@ -88,26 +75,8 @@
 
 <script>
 import { getEnts } from '@/api/cluster'
-
-const data = []
-data.push({
-  title: '测试镜像1',
-  avatar: '/imagelogo.png',
-  description: '测试镜像',
-  owner: 'reg.testcloud.com/test/admin-project'
-})
-data.push({
-  title: '测试镜像2',
-  avatar: '/imagelogo.png',
-  description: '测试镜像',
-  owner: 'reg.testcloud.com/test/admin-project'
-})
-data.push({
-  title: '测试镜像3',
-  avatar: '/imagelogo.png',
-  description: '测试镜像',
-  owner: 'reg.testcloud.com/test/admin-project'
-})
+import registryFetch from '@/api/registry'
+import { getGUID } from '@/utils/util'
 
 export default {
   name: 'Step1',
@@ -118,7 +87,28 @@ export default {
       clusters: [],
       selectEnt: '',
       selectedcluster: '',
-      data
+      data: [],
+      cloudimgname: '',
+      // 选择镜像
+      chooseCloudImageId: '',
+      chooseCloudImage: '',
+      chooseCloudImageCount: 0,
+      columns: [{
+        title: '集群',
+        dataIndex: 'ClusterName',
+        width: '20%'
+      }, {
+        title: '镜像',
+        dataIndex: 'Cloudimgname',
+        width: '60%',
+        scopedSlots: { customRender: 'Cloudimgname' }
+      }, {
+        title: '操作',
+        key: 'action',
+        width: '20%',
+        scopedSlots: { customRender: 'action' }
+      }],
+      tableLoading: false
     }
   },
   created () {
@@ -133,25 +123,54 @@ export default {
       getEnts()
         .then(res => {
           var info = res.result.data
-          console.log('ents')
-          console.log(info)
           info.forEach((item) => {
             that.clustersData[item.Entname] = item.Clusters.split(',')
           })
-          console.log(that.clustersData)
           that.ents = info
           that.selectEnt = info.Entname
         })
     },
     handleEntChange (value) {
-      console.log('change')
-      console.log(this.clustersData)
+      console.log(this.selectEnt)
+      this.getImages()
       if (this.clustersData[value] !== '') {
         this.clusters = this.clustersData[value]
       } else {
         this.clusters = []
       }
       this.selectedcluster = this.clustersData[value][0]
+    },
+    handleClusterChange () {
+      var self = this
+      self.getImages()
+    },
+    getImages () {
+      var self = this
+      self.tableLoading = true
+      registryFetch.getDeployImages(self.selectEnt, self.selectEnt, self.cloudimgname)
+        .then(res => {
+          self.tableLoading = false
+          var result = res.result
+          self.data = []
+          result.forEach(item => {
+            self.data.push(item)
+          })
+        })
+    },
+    useCloudImagesHandler (item) {
+      var self = this
+      self.chooseCloudImageId = item.ImageId
+      self.chooseCloudImage = item.ServerDomain + '/' + item.Name
+      var tempTags = item.Tags
+      if (tempTags === '') {
+        self.chooseCloudImageCount = 0
+      } else {
+        var tagsArra = tempTags.split(',')
+        self.chooseCloudImageCount = tagsArra.length
+      }
+    },
+    getRowKey () {
+      return getGUID()
     }
   }
 }
