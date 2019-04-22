@@ -154,13 +154,14 @@ export const asyncRouterMap = [
           }
         ]
       },
+      // 子页面
       {
         path: '/base/detail/:name',
-        name: 'base',
+        name: 'base2',
         hidden: true,
         component: RouteView,
         redirect: '/base/clusterdetail/:name',
-        meta: { title: '基础设施', icon: 'radar-chart', hiddenHeaderContent: true, permission: [ 'dashboard' ] },
+        meta: { title: '基础设施', icon: 'radar-chart', permission: [ 'dashboard' ] },
         children: [
           {
             path: '/base/clusterdetail/:name',
@@ -177,6 +178,35 @@ export const asyncRouterMap = [
             hiddenHeaderContent: true,
             component: () => import('@/views/application/app/AppDetail'),
             meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/servicedetail',
+            name: 'servicedetail',
+            // component: () => import('@/views/application/service/ServiceDetailLayout'),
+            component: RouteView,
+            redirect: '/application/servicedetail/:id',
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] },
+            children: [
+              {
+                path: '/application/servicedetail/:id',
+                name: 'SearchArticles',
+                props: true,
+                component: () => import('@/views/application/service/ServiceDetail'),
+                meta: { title: '服务概览', permission: [ 'dashboard' ] }
+              },
+              {
+                path: '/application/servicedetail/:id',
+                name: 'SearchProjects',
+                component: () => import('../views/application/service/ServiceDetail'),
+                meta: { title: '搜索列表（项目）', permission: [ 'dashboard' ] }
+              },
+              {
+                path: 'application/servicedetail/:id',
+                name: 'SearchApplications',
+                component: () => import('../views/application/service/ServiceDetail'),
+                meta: { title: '搜索列表（应用）', permission: [ 'dashboard' ] }
+              }
+            ]
           }
         ]
       },

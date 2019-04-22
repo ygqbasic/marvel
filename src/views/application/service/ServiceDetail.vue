@@ -1,27 +1,11 @@
 <template>
-  <page-layout :title="appDetail.AppName" logo="/clusterlogo.png">
-
-    <detail-list slot="headerContent" size="small" :col="2" class="detail-layout">
-      <detail-list-item term="所属集群"><a>{{ appDetail.ClusterName }}</a></detail-list-item>
-      <detail-list-item term="资源空间"><a>{{ appDetail.ResourceName }}</a></detail-list-item>
-      <detail-list-item term="创建时间">{{ appDetail.CreateTime }}</detail-list-item>
-      <detail-list-item term="创建人">{{ appDetail.CreateUser }}</detail-list-item>
-      <!-- <detail-list-item term="备注">{{ appDetail.CreateTime }}</detail-list-item> -->
-    </detail-list>
-    <a-row slot="extra" class="status-list">
-      <a-col :xs="12" :sm="12">
-        <div class="text">运行中</div>
-        <div class="heading">
-          <a-icon type="sync" :style="{ fontSize: '28px' }" spin class="running primary"></a-icon>
-        </div>
-      </a-col>
-    </a-row>
-
+  <page-layout :title="appDetail.AppName" logo="/clusterlogo.png" :tabs="tabs">
     <!-- actions -->
     <template slot="action">
       <a-button-group style="margin-right: 4px;">
-        <a-button>编辑</a-button>
-        <a-button>删除</a-button>
+        <a-button>启动</a-button>
+        <a-button>停止</a-button>
+        <a-button>重启</a-button>
         <!-- <a-button><a-icon type="ellipsis"/></a-button> -->
       </a-button-group>
       <!-- <a-button type="primary" >主操作</a-button> -->
@@ -192,6 +176,65 @@ export default {
     var name = this.$route.params.name
     console.log(name)
     return {
+      tabs: {
+        items: [
+          {
+            key: '1',
+            title: '概览'
+          },
+          {
+            key: '2',
+            title: '伸缩'
+          },
+          {
+            key: '3',
+            title: '配置'
+          },
+          {
+            key: '4',
+            title: '升级'
+          },
+          {
+            key: '5',
+            title: '配置'
+          },
+          {
+            key: '6',
+            title: '健康检查'
+          },
+          {
+            key: '7',
+            title: '日志'
+          }
+        ],
+        active: () => {
+          switch (this.$route.path) {
+            case '/application/service/servicedetail/22':
+              return '1'
+            case '/list/search/project':
+              return '2'
+            case '/list/search/application':
+              return '3'
+            default:
+              return '1'
+          }
+        },
+        callback: (key) => {
+          switch (key) {
+            case '1':
+              this.$router.push('/application/servicedetail/22')
+              break
+            case '2':
+              this.$router.push('/list/search/project')
+              break
+            case '3':
+              this.$router.push('/list/search/application')
+              break
+            default:
+              this.$router.push('/workplace')
+          }
+        }
+      },
       clusterName: name,
       showAddHostPanel: false,
       showChart: false,
@@ -311,7 +354,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
+  .page-menu-tabs {
+    margin-top: 16px;
+  }
   .detail-layout {
     margin-left: 44px;
   }

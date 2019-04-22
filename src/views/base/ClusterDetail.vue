@@ -22,16 +22,11 @@
     </detail-list>
     <a-row slot="extra" class="status-list">
       <a-col :xs="12" :sm="12">
-        <!-- <div class="text">运行中</div> -->
+        <div class="text">运行中</div>
         <div class="heading">
-          <a-spin tip="运行中" />
-          <!-- <a-icon type="sync" :style="{ fontSize: '28px', color: '#52c41a' }" class="running"></a-icon> -->
+          <a-icon type="sync" :style="{ fontSize: '28px' }" spin class="running primary"></a-icon>
         </div>
       </a-col>
-      <!-- <a-col :xs="12" :sm="12">
-        <div class="text">订单金额</div>
-        <div class="heading">¥ 568.08</div>
-      </a-col> -->
     </a-row>
 
     <!-- actions -->
@@ -374,12 +369,12 @@ export default {
   }
   .text {
     text-align: center;
-    color: #52c41a;// rgba(0, 0, 0, .45);
+    color: #1a78c4;// rgba(0, 0, 0, .45);
   }
 
   .heading {
     text-align: center;
-    color: #52c41a;// rgba(0, 0, 0, .85);
+    color: #1a78c4;// rgba(0, 0, 0, .85);
     font-size: 20px;
   }
 
