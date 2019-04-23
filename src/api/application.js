@@ -36,6 +36,17 @@ export function getAppDetail (parameter) {
   })
 }
 
+export function getResourceName (username) {
+  var param = {
+    'username': username
+  }
+  return axios({
+    url: `/app/queryResource`,
+    method: 'get',
+    data: param
+  })
+}
+
 // export function getClusterHosts (id, parameter) {
 //   return axios({
 //     url: `/cluster/hosts/${id}?cluster=${parameter}`,

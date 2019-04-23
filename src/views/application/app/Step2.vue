@@ -1,33 +1,27 @@
 <template>
   <div>
     <a-form style="margin: 40px auto 0;">
-      <a-alert
-        :closable="true"
-        message="确认转账后，资金将直接打入对方账户，无法退回。"
-        style="margin-bottom: 24px;"
-      />
       <a-form-item
         label="应用名称"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="SocialHub" />
+        <a-input v-model="appName" />
       </a-form-item>
       <a-form-item
         label="服务名称"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="MemberCenter" />
+        <a-input v-model="serviceName"/>
       </a-form-item>
       <a-form-item
         label="资源空间"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-select defaultValue="alipay">
-          <a-select-option value="alipay">天正测试环境资源</a-select-option>
-          <a-select-option value="wexinpay">天正演示环境资源</a-select-option>
+        <a-select v-model="resourceName">
+          <a-select-option value="alipay" v-for="item in resourceNameArra" :key="item">{{ item }}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item
@@ -109,6 +103,7 @@
 </template>
 
 <script>
+import { getResourceName } from '@/api/application'
 export default {
   name: 'Step2',
   data () {
@@ -124,17 +119,30 @@ export default {
         key: 'p2',
         value: 'Edward King 1',
         isReject: false
-      }]
+      }],
+
+      appName: '',
+      serviceName: '',
+      resourceName: '',
+      resourceNameArra: [],
+      imageName: '',
+      imageTag: '',
+      imageTagArra: [],
+      deployType: ''
+
     }
+  },
+  created () {
+    // var self = this
+    getResourceName('admin')
+      .then(res => {
+        console.log(res)
+      })
   },
   methods: {
     nextStep () {
       const that = this
       that.$emit('nextStep')
-      // that.loading = true
-      // setTimeout(function () {
-      //   that.$emit('nextStep')
-      // }, 500)
     },
     prevStep () {
       this.$emit('prevStep')
