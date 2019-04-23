@@ -66,7 +66,8 @@
         </a-card>
       </a-form-item>
       <a-form-item :wrapperCol="{span: 19, offset: 5}">
-        <a-button type="primary" @click="nextStep">下一步</a-button>
+        <a-button type="primary" @click="nextStep" v-if="chooseCloudImageId!=''">下一步</a-button>
+        <a-button type="primary" disabled v-else>下一步</a-button>
       </a-form-item>
     </a-form>
 
@@ -108,7 +109,9 @@ export default {
         width: '20%',
         scopedSlots: { customRender: 'action' }
       }],
-      tableLoading: false
+      tableLoading: false,
+      // 镜像内容 暴露给父组件
+      imageDataInfo: {}
     }
   },
   created () {
@@ -116,7 +119,8 @@ export default {
   },
   methods: {
     nextStep () {
-      this.$emit('nextStep')
+      var self = this
+      self.$emit('nextStep', self.imageDataInfo)
     },
     getEnts () {
       var that = this
@@ -168,6 +172,18 @@ export default {
         var tagsArra = tempTags.split(',')
         self.chooseCloudImageCount = tagsArra.length
       }
+      self.getImageInfo(item.Name)
+    },
+    getImageInfo (clusterUrl) {
+      var self = this
+      var clusterType = 'test'
+      clusterType = clusterUrl.substring(0, clusterUrl.indexOf('/'))
+      registryFetch.getImageInfo(clusterUrl, clusterType)
+        .then(res => {
+          var result = res.result
+          self.imageDataInfo = result.result
+          console.log(self.imageDataInfo)
+        })
     },
     getRowKey () {
       return getGUID()

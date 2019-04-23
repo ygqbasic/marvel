@@ -35,15 +35,23 @@ export default {
       currentTab: 0,
 
       // form
-      form: null
+      form: null,
+
+      imageDataInfo: {}
     }
   },
   methods: {
 
     // handler
-    nextStep () {
-      if (this.currentTab < 3) {
-        this.currentTab += 1
+    nextStep (val) {
+      var self = this
+      if (self.currentTab === 0) {
+        self.currentTab += 1
+        self.imageDataInfo = val
+      } else if (self.currentTab === 1) {
+        self.currentTab += 1
+      } else if (self.currentTab === 2) {
+        self.currentTab += 1
       }
     },
     prevStep () {
