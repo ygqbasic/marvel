@@ -119,16 +119,22 @@
               <a-button @click="onAddHostPanelClose" type="primary">Submit</a-button>
             </div>
           </a-drawer>
+          <!-- 服务列表 -->
           <a-table
-            rowKey="HostId"
-            :columns="operationColumns"
-            :dataSource="operation1"
+            rowKey="ServiceId"
+            :columns="serviceColumns"
+            :dataSource="serviceList"
             :pagination="false"
           >
             <template
               slot="status"
               slot-scope="status">
               <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
+            </template>
+            <template
+              slot="serviceName"
+              slot-scope="serviceName">
+              <a @click="goServiceDetail(22)">{{ serviceName }}</a>
             </template>
           </a-table>
         </a-col>
@@ -175,7 +181,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
-import { getAppDetail } from '@/api/application'
+import { getAppDetail, getAppServices } from '@/api/application'
 
 const DetailListItem = DetailList.Item
 
@@ -222,7 +228,40 @@ export default {
         }
       ],
       activeTabKey: '1',
-
+      serviceColumns: [
+        {
+          title: '服务名称',
+          dataIndex: 'ServiceName',
+          key: 'ServiceName',
+          scopedSlots: { customRender: 'serviceName' }
+        },
+        {
+          title: '运行状态',
+          dataIndex: 'Status',
+          key: 'Status',
+          scopedSlots: { customRender: 'status' }
+        },
+        {
+          title: '资源空间',
+          dataIndex: 'ResourceName',
+          key: 'ResourceName'
+        },
+        {
+          title: '创建时间',
+          dataIndex: 'CreateTime',
+          key: 'CreateTime'
+        },
+        {
+          title: '服务地址',
+          dataIndex: 'Access',
+          key: 'Access'
+        },
+        {
+          title: '删除/日志',
+          dataIndex: 'ImageNum',
+          key: 'ImageNum'
+        }
+      ],
       operationColumns: [
         {
           title: '服务名称',
@@ -237,8 +276,8 @@ export default {
         },
         {
           title: '资源空间',
-          dataIndex: 'HostLabel',
-          key: 'HostLabel'
+          dataIndex: 'ResourceName',
+          key: 'ResourceName'
         },
         {
           title: '创建时间',
@@ -247,8 +286,8 @@ export default {
         },
         {
           title: '服务地址',
-          dataIndex: 'HostType',
-          key: 'HostType'
+          dataIndex: 'Access',
+          key: 'Access'
         },
         {
           title: '删除/日志',
@@ -256,7 +295,7 @@ export default {
           key: 'ImageNum'
         }
       ],
-      operation1: [],
+      serviceList: [],
       operation2: [],
       operation3: [],
       operation4: []
@@ -265,15 +304,15 @@ export default {
   filters: {
     statusFilter (status) {
       const statusMap = {
-        '运行中': status,
-        '不可调度': status
+        'True': 'Success',
+        '': 'Error'
       }
       return statusMap[status]
     },
     statusTypeFilter (type) {
       const statusTypeMap = {
-        '运行中': 'success',
-        '不可调度': 'error'
+        'True': 'success',
+        'False': 'error'
       }
       return statusTypeMap[type]
     }
@@ -281,12 +320,16 @@ export default {
   created () {
     console.log('222')
     this.getAppDetail()
+    this.getAppServices()
   },
   mounted () {
     console.log(this.$route.params.name)
     this.$nextTick(() => { this.showChart = true })
   },
   methods: {
+    goServiceDetail (sid) {
+      this.$router.push(`/application/servicedetail/${sid}`)
+    },
     handleAddHost () {
       this.showAddHostPanel = true
     },
@@ -305,7 +348,17 @@ export default {
 
           that.appDetail = info
         })
+    },
+    getAppServices () {
+      var that = this
+      getAppServices('testoauth', 'AKS')
+        .then(res => {
+          var info = res.result
+          console.log(`serviceList:${info}`)
+          that.serviceList = info
+        })
     }
+
   }
 }
 </script>

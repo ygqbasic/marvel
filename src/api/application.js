@@ -36,13 +36,13 @@ export function getAppDetail (parameter) {
   })
 }
 
-// export function getClusterHosts (id, parameter) {
-//   return axios({
-//     url: `/cluster/hosts/${id}?cluster=${parameter}`,
-//     method: 'get',
-//     data: parameter
-//   })
-// }
+export function getAppServices (appName, clusterName) {
+  return axios({
+    url: `/services?AppName=${appName}&ClusterName=${clusterName}`,
+    method: 'get'
+    // data:
+  })
+}
 
 // export function getEnts (parameter) {
 //   return axios({
