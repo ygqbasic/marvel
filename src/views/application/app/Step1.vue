@@ -181,7 +181,7 @@ export default {
       registryFetch.getImageInfo(clusterUrl, clusterType)
         .then(res => {
           var result = res.result
-          self.imageDataInfo = result.result
+          self.imageDataInfo = result
           console.log(self.imageDataInfo)
         })
     },

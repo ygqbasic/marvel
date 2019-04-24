@@ -48,6 +48,7 @@ export default {
       if (self.currentTab === 0) {
         self.currentTab += 1
         self.imageDataInfo = val
+        console.log(self.imageDataInfo)
       } else if (self.currentTab === 1) {
         self.currentTab += 1
       } else if (self.currentTab === 2) {
