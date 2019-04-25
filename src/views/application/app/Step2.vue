@@ -6,7 +6,7 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input v-model="appName" />
+        <a-input v-model="appName" @blur="checkName" />
       </a-form-item>
       <a-form-item
         label="服务名称"
@@ -21,7 +21,7 @@
         :wrapperCol="{span: 19}"
       >
         <a-select v-model="resourceName">
-          <a-select-option value="alipay" v-for="item in resourceNameArra" :key="item">{{ item }}</a-select-option>
+          <a-select-option :value="item" v-for="item in resourceNameArra" :key="item">{{ item }}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item
@@ -29,16 +29,15 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="reg.testcloud.com/test/admin-project" />
+        <a-input v-model="imageName" disabled />
       </a-form-item>
       <a-form-item
         label="版本号"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-select defaultValue="alipay">
-          <a-select-option value="alipay">v1.2</a-select-option>
-          <a-select-option value="wexinpay">v1.0</a-select-option>
+        <a-select v-model="imageTag">
+          <a-select-option v-for="item in imageTagArra" :key="item" :value="item">{{ item }}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item
@@ -46,7 +45,7 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-radio-group defaultValue="a" buttonStyle="solid">
+        <a-radio-group defaultValue="a" buttonStyle="solid" v-model="deployType">
           <a-radio-button value="a">Deployment</a-radio-button>
           <a-radio-button value="b">DaemonSet</a-radio-button>
           <a-radio-button value="c">StatefulSet</a-radio-button>
@@ -104,8 +103,17 @@
 
 <script>
 import { getResourceName } from '@/api/application'
+import serviceFetch from '@/api/service'
 export default {
   name: 'Step2',
+  props: {
+    imageDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       loading: false,
@@ -133,13 +141,36 @@ export default {
     }
   },
   created () {
-    // var self = this
-    getResourceName('admin')
-      .then(res => {
-        console.log(res)
-      })
+    var self = this
+    self.initResourceNameArra()
+
+    if (self.imageDataInfo != null && self.imageDataInfo !== {}) {
+      self.imageName = self.imageDataInfo.Access + '/' + self.imageDataInfo.Name
+      var tempTags = self.imageDataInfo.Tags
+      self.imageTagArra = tempTags.split(',')
+      if (self.imageTagArra.length > 0) {
+        self.imageTag = self.imageTagArra[0]
+      }
+    }
   },
   methods: {
+    initResourceNameArra () {
+      var self = this
+      getResourceName('admin')
+        .then(res => {
+          self.resourceNameArra = res.result
+          if (res.result.length > 0) {
+            self.resourceName = res.result[0]
+          }
+        })
+    },
+    checkName () {
+      // var self = this
+      serviceFetch.QueryServiceByName('', 'DevCluster', 'demo17')
+        .then(res => {
+          console.log(res)
+        })
+    },
     nextStep () {
       const that = this
       that.$emit('nextStep')

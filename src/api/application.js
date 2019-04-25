@@ -44,13 +44,9 @@ export function getAppServices (appName, clusterName) {
   })
 }
 export function getResourceName (username) {
-  var param = {
-    'username': username
-  }
   return axios({
-    url: `/app/queryResource`,
-    method: 'get',
-    data: param
+    url: `/app/queryResource?username=${username}`,
+    method: 'get'
   })
 }
 
