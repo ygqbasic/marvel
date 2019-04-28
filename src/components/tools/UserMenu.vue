@@ -1,6 +1,6 @@
 <template>
   <div class="user-wrapper">
-    <a href="https://pro.loacg.com/docs/getting-started" target="_blank">
+    <a href="https://vue.ant.design/docs/vue/introduce-cn/" target="_blank">
       <span class="action">
         <a-icon type="question-circle-o"></a-icon>
       </span>

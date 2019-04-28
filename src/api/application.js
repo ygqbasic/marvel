@@ -46,7 +46,7 @@ export function getAppServices (appName, clusterName) {
 
 export function getServiceDetail (parameter) {
   return axios({
-    url: `/services/detail/${parameter}`,
+    url: `/service/detail/${parameter}`,
     method: 'get',
     data: parameter
   })

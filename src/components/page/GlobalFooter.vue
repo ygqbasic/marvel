@@ -1,17 +1,17 @@
 <template>
   <div class="footer">
     <div class="links">
-      <a href="https://pro.ant.design/" target="_blank">Pro 首页</a>
+      <!-- <a href="https://pro.ant.design/" target="_blank">Pro 首页</a>
       <a href="https://github.com/ant-design/ant-design-pro" target="_blank">
         <a-icon type="github"/>
       </a>
       <a href="https://ant.design/">Ant Design</a>
-      <a href="https://vue.ant.design/">Vue Antd</a>
+      <a href="https://vue.ant.design/">Vue Antd</a> -->
     </div>
     <div class="copyright">
       Copyright
       <a-icon type="copyright"/>
-      2019 <span>Marvel Pro</span>
+      2019 <span>Kubernetes & Istio</span>
     </div>
   </div>
 </template>

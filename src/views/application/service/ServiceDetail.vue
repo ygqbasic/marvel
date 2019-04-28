@@ -17,7 +17,8 @@
       :bordered="false"
     >
       <a-table
-        rowKey="HostId"
+        v-if="activeTabKey === '1'"
+        rowKey="ContainerId"
         :columns="operationColumns"
         :dataSource="appContainers"
         :pagination="false"
@@ -28,22 +29,34 @@
           <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
         </template>
       </a-table>
-      <a-table
-        v-if="activeTabKey === '3'"
-        rowKey="HostId"
-        :columns="operationColumns"
-        :dataSource="operation3"
-        :pagination="false"
-      >
-        <template
-          slot="status"
-          slot-scope="status">
-          <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
+      <div v-if="activeTabKey === '2'">
+        <template>
+          <a-textarea placeholder="伸缩" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
         </template>
-      </a-table>
+      </div>
+      <div v-if="activeTabKey === '3'">
+        <template>
+          <a-textarea placeholder="配置" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+        </template>
+      </div>
       <div v-if="activeTabKey === '4'">
         <template>
-          <a-textarea placeholder="Basic usage" :value="appDetail.Yaml" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-textarea placeholder="升级" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+        </template>
+      </div>
+      <div v-if="activeTabKey === '5'">
+        <template>
+          <a-textarea placeholder="配置" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+        </template>
+      </div>
+      <div v-if="activeTabKey === '6'">
+        <template>
+          <a-textarea placeholder="健康检查" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+        </template>
+      </div>
+      <div v-if="activeTabKey === '7'">
+        <template>
+          <a-textarea placeholder="日志" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
         </template>
       </div>
     </a-card>
@@ -73,6 +86,7 @@ export default {
     var name = this.$route.params.name
     console.log(name)
     return {
+      activeTabKey: '1',
       tabs: {
         items: [
           {
@@ -104,32 +118,41 @@ export default {
             title: '日志'
           }
         ],
-        active: () => {
-          switch (this.$route.path) {
-            case '/application/service/servicedetail/22':
-              return '1'
-            case '/list/search/project':
-              return '2'
-            case '/list/search/application':
-              return '3'
-            default:
-              return '1'
-          }
+        active: (key) => {
+          console.log('激活tab')
+          console.log(key)
+          // switch (this.$route.path) {
+          //   case '/application/service/servicedetail/22':
+          //     return '1'
+          //   case '/list/search/project':
+          //     return '2'
+          //   case '/list/search/application':
+          //     return '3'
+          //   default:
+          //     return '1'
+          // }
         },
         callback: (key) => {
-          switch (key) {
-            case '1':
-              this.activeTabKey = 1
-              break
-            case '2':
-              this.$router.push('/list/search/project')
-              break
-            case '3':
-              this.$router.push('/list/search/application')
-              break
-            default:
-              this.$router.push('/workplace')
-          }
+          this.activeTabKey = key
+          // switch (key) {
+          //   case '1':
+          //     this.activeTabKey = 1
+          //     break
+          //   case '2':
+          //     this.activeTabKey = 2
+          //     break
+          //   case '3':
+          //     this.activeTabKey = 3
+          //   case '4':
+          //     this.activeTabKey = 3
+          //   case '5':
+          //     this.activeTabKey = 3
+          //   case '6':
+          //     this.activeTabKey = 3
+          //     break
+          //   default:
+          //     this.activeTabKey = 1
+          // }
         }
       },
       clusterName: name,
@@ -138,17 +161,11 @@ export default {
       serviceDetail: {},
       appContainers: [],
       form: this.$form.createForm(this),
-      scale: [{
-        dataKey: 'value',
-        min: 0,
-        max: 100
-      }],
-      cpuAndMem: [],
       operationColumns: [
         {
           title: '容器名称',
-          dataIndex: 'HostIp',
-          key: 'HostIp'
+          dataIndex: 'ContainerName',
+          key: 'ContainerName'
         },
         {
           title: '运行状态',
@@ -158,28 +175,28 @@ export default {
         },
         {
           title: '镜像',
-          dataIndex: 'HostLabel',
-          key: 'HostLabel'
+          dataIndex: 'Image',
+          key: 'Image'
         },
         {
           title: '资源',
+          dataIndex: 'ResourceName',
+          key: 'ResourceName'
+        },
+        {
+          title: 'IP地址',
+          dataIndex: 'ContainerIp',
+          key: 'ContainerIp'
+        },
+        {
+          title: '创建时间/重启',
           dataIndex: 'CreateTime',
           key: 'CreateTime'
         },
         {
-          title: 'IP地址',
-          dataIndex: 'HostType',
-          key: 'HostType'
-        },
-        {
-          title: '创建事件/重启',
-          dataIndex: 'HostType',
-          key: 'HostType'
-        },
-        {
           title: '终端/事件/镜像/日志',
-          dataIndex: 'ImageNum',
-          key: 'ImageNum'
+          dataIndex: 'ContainerId',
+          key: 'ContainerId'
         }
       ]
     }
@@ -223,16 +240,17 @@ export default {
           console.log('1111')
           console.log(info)
           that.serviceDetail = info
+          that.getContainers(info.AppName, info.Entname, info.ServiceName)
         })
     },
-    getContainers () {
+    getContainers (appName, entName, serviceName) {
       var that = this
-      getAppContainers(this.$route.params.id)
+      getAppContainers(appName, entName, serviceName)
         .then(res => {
-          var info = res.result
+          var info = res.result.data
           console.log('1111')
           console.log(info)
-          that.serviceDetail = info
+          that.appContainers = info
         })
     }
   }

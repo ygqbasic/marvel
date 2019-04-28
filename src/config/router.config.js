@@ -44,8 +44,8 @@ export const asyncRouterMap = [
       {
         path: '/application',
         redirect: '/application/app',
-        component: PageView,
-        meta: { title: '持续发布', icon: 'appstore', permission: [ 'dashboard' ] },
+        component: RouteView,
+        meta: { title: '发布', icon: 'appstore', permission: [ 'dashboard' ] },
         children: [
           {
             path: '/application/app',
@@ -54,10 +54,26 @@ export const asyncRouterMap = [
             meta: { title: '应用管理', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
+            path: '/application/appdetail/:id',
+            name: 'appdetail',
+            props: true,
+            hidden: true,
+            component: () => import('@/views/application/app/AppDetail'),
+            meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
             path: '/application/app/add',
             name: 'appadd',
             component: () => import('@/views/application/app/StepForm'),
-            meta: { title: '应用发布', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
+            meta: { title: '应用发布', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/servicedetail/:id',
+            name: 'servicedetail',
+            // component: () => import('@/views/application/service/ServiceDetailLayout'),
+            hidden: true,
+            component: () => import('@/views/application/service/ServiceDetail'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
@@ -66,7 +82,7 @@ export const asyncRouterMap = [
         path: '/form',
         redirect: '/form/base-form',
         component: PageView,
-        meta: { title: '持续集成', icon: 'interation', permission: [ 'dashboard' ] },
+        meta: { title: '集成', icon: 'interation', permission: [ 'dashboard' ] },
         children: [
           {
             path: '/form/step-form',
@@ -170,43 +186,6 @@ export const asyncRouterMap = [
             hiddenHeaderContent: true,
             component: () => import('@/views/base/ClusterDetail'),
             meta: { title: '群集详情', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/application/appdetail/:id',
-            name: 'appdetail',
-            props: true,
-            hiddenHeaderContent: true,
-            component: () => import('@/views/application/app/AppDetail'),
-            meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/application/servicedetail',
-            name: 'servicedetail',
-            // component: () => import('@/views/application/service/ServiceDetailLayout'),
-            component: RouteView,
-            redirect: '/application/servicedetail/:id',
-            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] },
-            children: [
-              {
-                path: '/application/servicedetail/:id',
-                name: 'SearchArticles',
-                props: true,
-                component: () => import('@/views/application/service/ServiceDetail'),
-                meta: { title: '服务概览', permission: [ 'dashboard' ] }
-              },
-              {
-                path: '/application/servicedetail/:id',
-                name: 'SearchProjects',
-                component: () => import('../views/application/service/ServiceDetail'),
-                meta: { title: '搜索列表（项目）', permission: [ 'dashboard' ] }
-              },
-              {
-                path: 'application/servicedetail/:id',
-                name: 'SearchApplications',
-                component: () => import('../views/application/service/ServiceDetail'),
-                meta: { title: '搜索列表（应用）', permission: [ 'dashboard' ] }
-              }
-            ]
           }
         ]
       },

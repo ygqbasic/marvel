@@ -5,11 +5,11 @@
       <detail-list-item term="群集类型">{{ clusterDetail.ClusterType }}
         <a-tooltip trigger="hover" placement="right">
           <template slot="title">
-            <div style="color:gray;font-size:12px">
+            <div style="color:lightgray;font-size:12px">
               <p><span style="color:white;font-size:12px">Standard：</span>基于开源Kubernetes构建</p>
               <p><span style="color:white;font-size:12px">AKS：</span>基于Azure PaaS Kubernetes构建</p>
-              <p><span style="color:white;font-size:12px">ACK：</span>基于阿里云 PaaS Kubernetes构建</p>
-              <p><span style="color:white;font-size:12px">TCE：</span>基于腾讯云 PaaS Kubernetes构建</p>
+              <p><span style="color:red;font-size:12px">ACK：</span>基于阿里云 PaaS Kubernetes构建</p>
+              <p><span style="color:red;font-size:12px">TCE：</span>基于腾讯云 PaaS Kubernetes构建</p>
             </div>
           </template>
           <a-icon type="question-circle" ></a-icon>

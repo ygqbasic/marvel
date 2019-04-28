@@ -25,31 +25,31 @@ export default {
           }
         ],
         active: () => {
-          switch (this.$route.path) {
-            case '/application/service/servicedetail/22':
-              return '1'
-            case '/list/search/project':
-              return '2'
-            case '/list/search/application':
-              return '3'
-            default:
-              return '1'
-          }
+          // switch (this.$route.path) {
+          //   case '/application/service/servicedetail/22':
+          //     return '1'
+          //   case '/list/search/project':
+          //     return '2'
+          //   case '/list/search/application':
+          //     return '3'
+          //   default:
+          //     return '1'
+          // }
         },
         callback: (key) => {
-          switch (key) {
-            case '1':
-              this.$router.push('/application/servicedetail/22')
-              break
-            case '2':
-              this.$router.push('/list/search/project')
-              break
-            case '3':
-              this.$router.push('/list/search/application')
-              break
-            default:
-              this.$router.push('/workplace')
-          }
+          // switch (key) {
+          //   case '1':
+          //     this.$router.push('/application/servicedetail/22')
+          //     break
+          //   case '2':
+          //     this.$router.push('/list/search/project')
+          //     break
+          //   case '3':
+          //     this.$router.push('/list/search/application')
+          //     break
+          //   default:
+          //     this.$router.push('/workplace')
+          // }
         }
       },
       search: true
