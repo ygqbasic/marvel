@@ -1,5 +1,5 @@
 <template>
-  <page-layout :title="appDetail.AppName" logo="/clusterlogo.png" :tabs="tabs">
+  <page-layout :title="serviceDetail.ServiceName" logo="/clusterlogo.png" :tabs="tabs">
     <!-- actions -->
     <template slot="action">
       <a-button-group style="margin-right: 4px;">
@@ -15,114 +15,11 @@
     <a-card
       style="margin-top: 24px"
       :bordered="false"
-      :tabList="tabList"
-      :activeTabKey="activeTabKey"
-      @tabChange="(key) => {this.activeTabKey = key}"
     >
-      <a-row>
-        <a-col :xs="24" :sm="24" v-if="activeTabKey === '1'">
-          <div>
-            <a-button type="primary" icon="plus" @click="handleAddHost()">添加服务</a-button>
-            <a-button type="dashed" icon="caret-right" @click="handleAddHost()">启动</a-button>
-            <a-button type="dashed" icon="pause-circle" @click="handleAddHost()">停止</a-button>
-            <a-button type="dashed" icon="thunderbolt" @click="handleAddHost()">重启</a-button>
-            <a-button type="dashed" icon="share-alt" @click="handleAddHost()">伸缩</a-button>
-            <a-button type="dashed" icon="setting" @click="handleAddHost()">配置</a-button>
-            <a-button type="dashed" icon="rise" @click="handleAddHost()">升级</a-button>
-            <a-button type="dashed" icon="plus" @click="handleAddHost()">修改端口</a-button>
-            <a-button type="dashed" icon="medicine-box" @click="handleAddHost()">健康检查</a-button>
-          </div>
-          <a-drawer
-            title="添加主机"
-            :width="720"
-            @close="onAddHostPanelClose"
-            :visible="showAddHostPanel"
-            :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
-          >
-            <a-form :form="form" layout="vertical" >
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="群集">
-                    <a-input
-                      disabled
-                      v-decorator="['clusterName', {
-                        rules: [{ required: true, message: '请输入群集名称' }],
-                        initialValue: clusterName
-                      }]"
-                      placeholder="必须为全英文"
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="主机IP">
-                    <a-input
-                      v-decorator="['hostip', {
-                        rules: [{ required: true, message: '请输入主机名' }]
-                      }]"
-                      placeholder="主机IP"
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="主机类型">
-                    <a-select
-                      v-decorator="['hosttype', {
-                        rules: [{ required: true, message: '请选择主机类型' }]
-                      }]"
-                      placeholder="请选择群集类型"
-                    >
-                      <a-select-option key="master" value="master">master</a-select-option>
-                      <a-select-option key="slave" value="slave">slave</a-select-option>
-                    </a-select>
-                  </a-form-item>
-                </a-col>
-              </a-row>
-            </a-form>
-            <div
-              :style="{
-                position: 'absolute',
-                left: 0,
-                bottom: 0,
-                width: '100%',
-                borderTop: '1px solid #e9e9e9',
-                padding: '10px 16px',
-                background: '#fff',
-                textAlign: 'right',
-              }"
-            >
-              <a-button
-                :style="{marginRight: '8px'}"
-                @click="onAddHostPanelClose"
-              >
-                Cancel
-              </a-button>
-              <a-button @click="onAddHostPanelClose" type="primary">Submit</a-button>
-            </div>
-          </a-drawer>
-          <a-table
-            rowKey="HostId"
-            :columns="operationColumns"
-            :dataSource="operation1"
-            :pagination="false"
-          >
-            <template
-              slot="status"
-              slot-scope="status">
-              <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
-            </template>
-          </a-table>
-        </a-col>
-      </a-row>
-
       <a-table
-        v-if="activeTabKey === '2'"
         rowKey="HostId"
         :columns="operationColumns"
-        :dataSource="operation2"
+        :dataSource="appContainers"
         :pagination="false"
       >
         <template
@@ -159,7 +56,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
-import { getAppDetail } from '@/api/application'
+import { getServiceDetail, getAppContainers } from '@/api/application'
 
 const DetailListItem = DetailList.Item
 
@@ -222,7 +119,7 @@ export default {
         callback: (key) => {
           switch (key) {
             case '1':
-              this.$router.push('/application/servicedetail/22')
+              this.activeTabKey = 1
               break
             case '2':
               this.$router.push('/list/search/project')
@@ -238,7 +135,8 @@ export default {
       clusterName: name,
       showAddHostPanel: false,
       showChart: false,
-      appDetail: {},
+      serviceDetail: {},
+      appContainers: [],
       form: this.$form.createForm(this),
       scale: [{
         dataKey: 'value',
@@ -246,29 +144,9 @@ export default {
         max: 100
       }],
       cpuAndMem: [],
-      tabList: [
-        {
-          key: '1',
-          tab: '服务'
-        },
-        {
-          key: '2',
-          tab: 'TOP'
-        },
-        {
-          key: '3',
-          tab: '事件'
-        },
-        {
-          key: '4',
-          tab: 'YAML'
-        }
-      ],
-      activeTabKey: '1',
-
       operationColumns: [
         {
-          title: '服务名称',
+          title: '容器名称',
           dataIndex: 'HostIp',
           key: 'HostIp'
         },
@@ -279,30 +157,31 @@ export default {
           scopedSlots: { customRender: 'status' }
         },
         {
-          title: '资源空间',
+          title: '镜像',
           dataIndex: 'HostLabel',
           key: 'HostLabel'
         },
         {
-          title: '创建时间',
+          title: '资源',
           dataIndex: 'CreateTime',
           key: 'CreateTime'
         },
         {
-          title: '服务地址',
+          title: 'IP地址',
           dataIndex: 'HostType',
           key: 'HostType'
         },
         {
-          title: '删除/日志',
+          title: '创建事件/重启',
+          dataIndex: 'HostType',
+          key: 'HostType'
+        },
+        {
+          title: '终端/事件/镜像/日志',
           dataIndex: 'ImageNum',
           key: 'ImageNum'
         }
-      ],
-      operation1: [],
-      operation2: [],
-      operation3: [],
-      operation4: []
+      ]
     }
   },
   filters: {
@@ -323,7 +202,7 @@ export default {
   },
   created () {
     console.log('222')
-    this.getAppDetail()
+    this.getServiceDetail()
   },
   mounted () {
     console.log(this.$route.params.name)
@@ -336,17 +215,24 @@ export default {
     onAddHostPanelClose () {
       this.showAddHostPanel = false
     },
-    getAppDetail () {
+    getServiceDetail () {
       var that = this
-      getAppDetail(this.$route.params.id)
+      getServiceDetail(this.$route.params.id)
         .then(res => {
           var info = res.result
           console.log('1111')
           console.log(info)
-          that.cpuAndMem.push({ name: 'CPU', transfer: 'CPU', value: info.CpuUsePercent })
-          that.cpuAndMem.push({ name: '内存', transfer: '内存', value: info.MemUsePercent })
-
-          that.appDetail = info
+          that.serviceDetail = info
+        })
+    },
+    getContainers () {
+      var that = this
+      getAppContainers(this.$route.params.id)
+        .then(res => {
+          var info = res.result
+          console.log('1111')
+          console.log(info)
+          that.serviceDetail = info
         })
     }
   }

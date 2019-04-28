@@ -133,8 +133,8 @@
             </template>
             <template
               slot="serviceName"
-              slot-scope="serviceName">
-              <a @click="goServiceDetail(22)">{{ serviceName }}</a>
+              slot-scope="text,record">
+              <a @click="goServiceDetail(record.ServiceId)">{{ record.ServiceName }}</a>
             </template>
           </a-table>
         </a-col>
@@ -320,7 +320,6 @@ export default {
   created () {
     console.log('222')
     this.getAppDetail()
-    this.getAppServices()
   },
   mounted () {
     console.log(this.$route.params.name)
@@ -341,19 +340,17 @@ export default {
       getAppDetail(this.$route.params.id)
         .then(res => {
           var info = res.result
-          console.log('1111')
+          console.log('获取应用详情')
           console.log(info)
-          that.cpuAndMem.push({ name: 'CPU', transfer: 'CPU', value: info.CpuUsePercent })
-          that.cpuAndMem.push({ name: '内存', transfer: '内存', value: info.MemUsePercent })
-
           that.appDetail = info
+          this.getAppServices()
         })
     },
     getAppServices () {
       var that = this
-      getAppServices('testoauth', 'AKS')
+      getAppServices(that.appDetail.AppName, 'AKS')
         .then(res => {
-          var info = res.result
+          var info = res.result.data
           console.log(`serviceList:${info}`)
           that.serviceList = info
         })

@@ -43,6 +43,23 @@ export function getAppServices (appName, clusterName) {
     // data:
   })
 }
+
+export function getServiceDetail (parameter) {
+  return axios({
+    url: `/services/detail/${parameter}`,
+    method: 'get',
+    data: parameter
+  })
+}
+
+export function getAppContainers (appName, entName, serviceName) {
+  return axios({
+    url: `/containers?AppName=${appName}&Entname=${entName}&ServiceName=${serviceName}`,
+    method: 'get'
+    // data:
+  })
+}
+
 export function getResourceName (username) {
   var param = {
     'username': username
