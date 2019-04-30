@@ -45,13 +45,13 @@ export const asyncRouterMap = [
         path: '/application',
         redirect: '/application/app',
         component: RouteView,
-        meta: { title: '发布', icon: 'appstore', permission: [ 'dashboard' ] },
+        meta: { title: '应用管理', icon: 'appstore', permission: [ 'dashboard' ] },
         children: [
           {
             path: '/application/app',
             name: 'applist',
             component: () => import('@/views/application/app/AppList'),
-            meta: { title: '应用管理', keepAlive: false, permission: [ 'dashboard' ] }
+            meta: { title: '应用列表', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
             path: '/application/appdetail/:id',

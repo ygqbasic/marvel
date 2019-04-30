@@ -18,7 +18,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: 'Marvel Pro',
+      default: 'Fuhsi Pro',
       required: false
     },
     showTitle: {

@@ -28,6 +28,11 @@
           slot-scope="status">
           <a-badge :status="status | statusTypeFilter" :text="status | statusFilter"/>
         </template>
+        <template
+          slot="containerId"
+          slot-scope="text,record">
+          <a><a-icon type="code" style="font-size:20px" @click="handleShowWebtty(record.ContainerId)"></a-icon></a>
+        </template>
       </a-table>
       <div v-if="activeTabKey === '2'">
         <template>
@@ -61,6 +66,38 @@
       </div>
     </a-card>
 
+    <a-drawer
+      title="容器终端"
+      :width="720"
+      @close="onWebttyPanelClose"
+      :visible="showWebttyPanel"
+      :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px',}"
+    >
+      <template>
+        <div style="color: #ffffff;margin:10px;background-color: #333;"> &nbsp; 容器名称:&nbsp;{{ webttyInfo.container }}&nbsp; &nbsp;  所属集群:&nbsp;{{ webttyInfo.cluster }}  &nbsp; &nbsp; 操作员:&nbsp;{{ webttyInfo.username }}&nbsp; &nbsp; 登录时间:&nbsp;{{ webttyInfo.time }}</div>
+        <a-textarea placeholder="日志" style="border: none;background-color: #333;width: 100%;height: '100%',color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+      </template>
+      <div
+        :style="{
+          position: 'absolute',
+          left: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+        }"
+      >
+        <a-button
+          :style="{marginRight: '8px'}"
+          @click="onWebttyPanelClose"
+        >
+          关闭
+        </a-button>
+      </div>
+    </a-drawer>
+
   </page-layout>
 </template>
 
@@ -70,6 +107,7 @@ import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getServiceDetail, getAppContainers } from '@/api/application'
+import { getWebttyInfo } from '@/api/service'
 
 const DetailListItem = DetailList.Item
 
@@ -156,11 +194,12 @@ export default {
         }
       },
       clusterName: name,
-      showAddHostPanel: false,
+      showWebttyPanel: false,
       showChart: false,
       serviceDetail: {},
       appContainers: [],
-      form: this.$form.createForm(this),
+      webttyInfo: {},
+      // form: this.$form.createForm(this),
       operationColumns: [
         {
           title: '容器名称',
@@ -196,7 +235,8 @@ export default {
         {
           title: '终端/事件/镜像/日志',
           dataIndex: 'ContainerId',
-          key: 'ContainerId'
+          key: 'ContainerId',
+          scopedSlots: { customRender: 'containerId' }
         }
       ]
     }
@@ -226,11 +266,20 @@ export default {
     this.$nextTick(() => { this.showChart = true })
   },
   methods: {
-    handleAddHost () {
-      this.showAddHostPanel = true
+    handleShowWebtty (id) {
+      var that = this
+      getWebttyInfo(id)
+        .then(res => {
+          var info = res.result
+          console.log('1111')
+          console.log(info)
+          that.webttyInfo = info
+          // 显示终端界面
+          that.showWebttyPanel = true
+        })
     },
-    onAddHostPanelClose () {
-      this.showAddHostPanel = false
+    onWebttyPanelClose () {
+      this.showWebttyPanel = false
     },
     getServiceDetail () {
       var that = this
