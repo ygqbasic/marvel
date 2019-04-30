@@ -55,6 +55,18 @@
           <a-col :span="2">超时</a-col>
           <a-col :span="5">操作</a-col>
         </a-row>
+        <a-row v-for="(item,index) in healthData" :key="index">
+          <a-col :span="2">{{ item.HealthType }}</a-col>
+          <a-col :span="2">{{ item.HealthPort }}</a-col>
+          <a-col :span="4" v-if="item.HealthType==='HTTP'">{{ item.HealthPath }}</a-col>
+          <a-col :span="4" v-else-if="item.HealthType==='TCP'">/</a-col>
+          <a-col :span="4" v-else>{{ item.HealthPath }}</a-col>
+          <a-col :span="2">{{ item.HealthInitialDelay }}</a-col>
+          <a-col :span="2">{{ item.HealthInterval }}</a-col>
+          <a-col :span="3">{{ item.HealthFaliureThreshold }}</a-col>
+          <a-col :span="2">{{ item.HealthTimeout }}</a-col>
+          <a-col :span="5"><a-button class="editable-add-btn" @click="removeHealthItem(index)">移除</a-button></a-col>
+        </a-row>
         <a-row>
           <a-col :span="2"></a-col>
           <a-col :span="2"></a-col>
@@ -172,7 +184,7 @@
         >
           取消
         </a-button>
-        <a-button @click="onClose" type="primary">创建</a-button>
+        <a-button @click="addHealthCheck" type="primary">创建</a-button>
       </div>
     </a-drawer>
   </div>
@@ -206,7 +218,10 @@ export default {
       healthInitialDelay: '100',
       healthInterval: '60',
       healthFaliureThreshold: '0',
-      healthTimeout: '20'
+      healthTimeout: '20',
+
+      healthData: [],
+      healthDataInfo: {}
     }
   },
   created () {
@@ -214,8 +229,46 @@ export default {
   },
   methods: {
     nextStep () {
-      const that = this
-      that.$emit('nextStep')
+      const self = this
+      if (self.ports.length <= 0) {
+        self.$message.error(`请输入容器暴露端口`)
+        return false
+      }
+      if (self.domain === '') {
+        self.$message.error(`请输入域名后缀`)
+        return false
+      }
+      if (self.healthData.length <= 0) {
+        self.$message.error(`请添加健康检查接口`)
+        return false
+      }
+      var tempObj = {
+        'HealthType': self.healthData[0].HealthType,
+        'HealthPort': self.healthData[0].HealthPort,
+        'HealthInterval': self.healthData[0].HealthInterval,
+        'HealthInitialDelay': self.healthData[0].HealthInitialDelay,
+        'HealthFaliureThreshold': self.healthData[0].HealthFaliureThreshold,
+        'HealthTimeout': self.healthData[0].HealthTimeout
+      }
+      if (self.healthData[0].healthType === 'HTTP') {
+        tempObj['HealthPath'] = self.healthData[0].HealthPath
+      } else if (self.healthData[0].healthType === 'CMD') {
+        tempObj['HealthCmd'] = self.healthData[0].HealthCmd
+      }
+
+      self.healthDataInfo = {
+        'HealthData': JSON.stringify(tempObj),
+        'ContainerPort': self.ports[0],
+        'Domain': self.domain
+      }
+
+      var outPutObj = {
+        'step1': self.basicDataInfo.step1,
+        'step2': self.basicDataInfo.step2,
+        'step3': self.healthDataInfo
+      }
+
+      self.$emit('nextStep', outPutObj)
     },
     prevStep () {
       this.$emit('prevStep')
@@ -266,6 +319,76 @@ export default {
     },
     onClose () {
       this.visible = false
+    },
+    verity () {
+      var self = this
+      var flag = 0
+      if (self.healthType === 'HTTP' || self.healthType === 'TCP') {
+        if (self.healthPort === '') {
+          self.$message.error(`请输入健康检查端口`)
+          flag = 1
+          return flag
+        }
+      } else {
+        if (self.healthCmd === '') {
+          self.$message.error(`请输入健康检查命令`)
+          flag = 1
+          return flag
+        }
+      }
+      if (self.healthType === 'HTTP') {
+        if (self.healthPath === '') {
+          self.$message.error(`请输入页面路径`)
+          flag = 1
+          return flag
+        }
+      }
+      if (self.healthInitialDelay === '') {
+        self.$message.error(`请输入首次检查延时`)
+        flag = 1
+        return flag
+      }
+      if (self.healthInterval === '') {
+        self.$message.error(`请输入间隔时间`)
+        flag = 1
+        return flag
+      }
+      if (self.healthFaliureThreshold === '') {
+        self.$message.error(`请输入失败次数阈值`)
+        flag = 1
+        return flag
+      }
+      if (self.healthTimeout === '') {
+        self.$message.error(`请输入超时时间`)
+        flag = 1
+        return flag
+      }
+    },
+    addHealthCheck () {
+      var self = this
+      if (self.verity() === 1) {
+        return false
+      }
+      var tempObj = {
+        'HealthType': self.healthType,
+        'HealthPort': self.healthPort,
+        'HealthInterval': self.healthInterval,
+        'HealthInitialDelay': self.healthInitialDelay,
+        'HealthFaliureThreshold': self.healthFaliureThreshold,
+        'HealthTimeout': self.healthTimeout
+      }
+      if (self.healthType === 'HTTP') {
+        tempObj['HealthPath'] = self.healthPath
+      } else if (self.healthType === 'CMD') {
+        tempObj['HealthCmd'] = self.healthCmd
+      }
+
+      self.healthData.push(tempObj)
+      self.visible = false
+    },
+    removeHealthItem (index) {
+      var self = this
+      self.healthData.splice(index, 1)
     }
   }
 }

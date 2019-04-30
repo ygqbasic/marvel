@@ -1,11 +1,6 @@
 <template>
   <div>
     <a-form style="margin: 40px auto 0;">
-      <a-alert
-        :closable="true"
-        message="确认转账后，资金将直接打入对方账户，无法退回。"
-        style="margin-bottom: 24px;"
-      />
       <a-form-item
         label="服务类型"
         :labelCol="{span: 5}"
@@ -31,21 +26,21 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="1" />
+        <a-input v-model="replicas"/>
       </a-form-item>
       <a-form-item
         label="实列最小值"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="1" />
+        <a-input v-model="replicasMin" />
       </a-form-item>
       <a-form-item
         label="实列最大值"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="1" />
+        <a-input v-model="replicasMax" />
       </a-form-item>
       <a-form-item
         label="配置文件"
@@ -57,14 +52,9 @@
           <a-col :span="6">配置项目</a-col>
           <a-col :span="5">操作</a-col>
         </a-row>
-        <a-row :key="index" v-for="(lbl, index) in serviceLabels" >
-          <a-col :span="6">{{ lbl.key }}</a-col>
-          <a-col :span="6">{{ lbl.value }}</a-col>
-          <a-col :span="5"><a-button class="editable-add-btn" @click="handleRemoveLabel(lbl.key)">移除</a-button></a-col>
-        </a-row>
         <a-row>
-          <a-col :span="6"><a-input v-model="serviceLabelTemp.key" /></a-col>
-          <a-col :span="6"><a-input v-model="serviceLabelTemp.value" /></a-col>
+          <a-col :span="6"></a-col>
+          <a-col :span="6"></a-col>
           <a-col :span="5"><a-button class="editable-add-btn" @click="handleAddLabel">添加</a-button></a-col>
         </a-row>
       </a-form-item>
@@ -77,7 +67,7 @@
           <a-textarea
             placeholder="变量名=变量值
 evn=prod"
-            value=""
+            v-model="envs"
             :rows="5"/>
         </template>
       </a-form-item>
@@ -93,7 +83,7 @@ evn=prod"
 /var/log/messages
 /tmp/gc.log
 多个日志按换行填入,目录以/结尾,路径可以使用$item变量,$item为服务名称配置时需要先配置kfak地址信息,filebeat将日志输出到kafka中"
-            value=""
+            v-model="logPath"
             :rows="8"/>
         </template>
       </a-form-item>
@@ -112,6 +102,14 @@ import { Result } from '@/components'
 
 export default {
   name: 'Step4',
+  props: {
+    healthDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    }
+  },
   components: {
     Result
   },
@@ -119,20 +117,34 @@ export default {
     return {
       loading: false,
       serviceLabelTemp: { key: 'project', value: 'techsun', isReject: true },
-      serviceLabels: [{
-        key: 'p1',
-        value: 'Edward King 0',
-        isReject: false
-      }, {
-        key: 'p2',
-        value: 'Edward King 1',
-        isReject: false
-      }]
+      serviceLabels: [],
+      replicas: '1',
+      replicasMin: '1',
+      replicasMax: '1',
+      envs: '',
+      logPath: '',
+      configData: [],
+      finishDataInfo: {}
     }
   },
   methods: {
     finish () {
-      this.$emit('finish')
+      var self = this
+      self.finishDataInfo = {
+        'Replicas': self.replicas,
+        'ReplicasMin': self.replicasMin,
+        'ReplicasMax': self.replicasMax,
+        'Envs': self.envs,
+        'LogPath': self.logPath,
+        'ConfigData': self.configData
+      }
+      var tempObj = {
+        'step1': self.healthDataInfo.step1,
+        'step2': self.healthDataInfo.step2,
+        'step3': self.healthDataInfo.step3,
+        'step4': self.finishDataInfo
+      }
+      self.$emit('finish', tempObj)
     },
     toOrderList () {
       this.$router.push('/list/query-list')

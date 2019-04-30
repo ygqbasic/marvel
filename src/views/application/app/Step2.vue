@@ -148,8 +148,8 @@ export default {
       gCpu: '',
       gMem: '',
 
-      chooseCpu: '',
-      chooseMem: '',
+      chooseCpu: '0.5',
+      chooseMem: '1024',
 
       basicDataInfo: {}
     }
@@ -187,7 +187,7 @@ export default {
     },
     nextStep () {
       const self = this
-      if (self.valid() !== 0) {
+      if (self.valid() === 0) {
         self.basicDataInfo = {
           'AppName': self.appName,
           'ServiceName': self.serviceName,
@@ -197,10 +197,11 @@ export default {
           'ImageTag': self.imageName + ':' + self.imageTag,
           'Cpu': self.chooseCpu,
           'Memory': self.chooseMem,
-          'ServiceLablesData': self.serviceLabels
+          'ServiceLablesData': self.serviceLabels,
+          'Version': self.imageTag
         }
         var tempObj = {
-          'step1': self.flowDataInfo,
+          'step1': self.flowDataInfo.step1,
           'step2': self.basicDataInfo
         }
         self.$emit('nextStep', tempObj)

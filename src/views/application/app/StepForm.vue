@@ -10,7 +10,7 @@
       <step1 v-if="currentTab === 0" @nextStep="nextStep"/>
       <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :flowDataInfo="flowDataInfo"/>
       <step3 v-if="currentTab === 2" @prevStep="prevStep" @nextStep="nextStep" :basicDataInfo="basicDataInfo"/>
-      <step4 v-if="currentTab === 3" @prevStep="prevStep" @finish="finish"/>
+      <step4 v-if="currentTab === 3" @prevStep="prevStep" @finish="finish" :healthDataInfo="healthDataInfo"/>
     </div>
   </a-card>
 </template>
@@ -20,6 +20,7 @@ import Step1 from './Step1'
 import Step2 from './Step2'
 import Step3 from './Step3'
 import Step4 from './Step4'
+import serviceFetch from '@/api/service'
 
 export default {
   name: 'StepForm',
@@ -38,7 +39,8 @@ export default {
       form: null,
 
       flowDataInfo: {},
-      basicDataInfo: {}
+      basicDataInfo: {},
+      healthDataInfo: {}
     }
   },
   methods: {
@@ -54,6 +56,7 @@ export default {
         self.basicDataInfo = val
       } else if (self.currentTab === 2) {
         self.currentTab += 1
+        self.healthDataInfo = val
       }
     },
     prevStep () {
@@ -61,8 +64,44 @@ export default {
         this.currentTab -= 1
       }
     },
-    finish () {
-      this.currentTab = 0
+    finish (val) {
+      var self = this
+      var serviceObj = {
+        'AppName': val.step2.AppName,
+        'ServiceName': val.step2.ServiceName,
+        'serviceType': val.step2.serviceType,
+        'ImageRegistry': val.step2.ImageRegistry,
+        'Cpu': val.step2.Cpu,
+        'Memory': val.step2.Memory,
+        'LabelsKey': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['Key'] : '',
+        'LabelsValue': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['Value'] : '',
+        'LabelsK8s': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['K8s'] ? 'off' : 'on' : '',
+        'NetworkMode': '1',
+        'ContainerPort': val.step3.ContainerPort,
+        'Domain': val.step3.Domain,
+        'Replicas': Number(val.step4.Replicas),
+        'ReplicasMin': Number(val.step4.ReplicasMin),
+        'ReplicasMax': Number(val.step4.ReplicasMax),
+        'Envs': val.step4.Envs,
+        'LogPath': val.step4.LogPath,
+        'ConfigureData': JSON.stringify(val.step4.ConfigData),
+        'Entname': '测试环境',
+        'ClusterName': 'AKS',
+        'ResourceName': val.step2.ResourceName,
+        'Version': val.step2.Version,
+        'HealthData': val.step3.HealthData,
+        'ImageTag': val.step2.ImageTag,
+        'StorageData': '',
+        'ServiceId': 0,
+        'ServiceLablesData': JSON.stringify(val.step2.ServiceLablesData)
+      }
+      console.log(serviceObj)
+      serviceFetch.addService(serviceObj)
+        .then(res => {
+          if (res.status) {
+            self.$router.push('/application/app')
+          }
+        })
     }
   }
 }

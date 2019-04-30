@@ -6,6 +6,13 @@ export default {
       url: `/service/name?AppName=${appName}&ClusterName=${clusterName}&ServiceName=${serviceName}`,
       method: 'get'
     })
+  },
+  addService (param) {
+    return axios({
+      url: '/service',
+      method: 'post',
+      data: param
+    })
   }
 }
 
