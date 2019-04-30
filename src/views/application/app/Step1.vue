@@ -120,7 +120,10 @@ export default {
   methods: {
     nextStep () {
       var self = this
-      self.$emit('nextStep', self.imageDataInfo)
+      var tempObj = {
+        'step1': self.imageDataInfo
+      }
+      self.$emit('nextStep', tempObj)
     },
     getEnts () {
       var that = this

@@ -8,8 +8,8 @@
     </a-steps>
     <div class="content">
       <step1 v-if="currentTab === 0" @nextStep="nextStep"/>
-      <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :imageDataInfo="imageDataInfo"/>
-      <step3 v-if="currentTab === 2" @prevStep="prevStep" @nextStep="nextStep"/>
+      <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :flowDataInfo="flowDataInfo"/>
+      <step3 v-if="currentTab === 2" @prevStep="prevStep" @nextStep="nextStep" :basicDataInfo="basicDataInfo"/>
       <step4 v-if="currentTab === 3" @prevStep="prevStep" @finish="finish"/>
     </div>
   </a-card>
@@ -37,7 +37,8 @@ export default {
       // form
       form: null,
 
-      imageDataInfo: {}
+      flowDataInfo: {},
+      basicDataInfo: {}
     }
   },
   methods: {
@@ -47,10 +48,10 @@ export default {
       var self = this
       if (self.currentTab === 0) {
         self.currentTab += 1
-        self.imageDataInfo = val
-        console.log(self.imageDataInfo)
+        self.flowDataInfo = val
       } else if (self.currentTab === 1) {
         self.currentTab += 1
+        self.basicDataInfo = val
       } else if (self.currentTab === 2) {
         self.currentTab += 1
       }

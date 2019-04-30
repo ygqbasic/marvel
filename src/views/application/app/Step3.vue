@@ -1,32 +1,20 @@
 <template>
   <div>
     <a-form style="margin: 40px auto 0;">
-      <a-alert
-        :closable="true"
-        message="确认转账后，资金将直接打入对方账户，无法退回。"
-        style="margin-bottom: 24px;"
-      />
-      <a-form-item
-        label="应用名称"
-        :labelCol="{span: 5}"
-        :wrapperCol="{span: 19}"
-      >
-        <a-input value="SocialHub" />
-      </a-form-item>
       <a-form-item
         label="容器暴露端口"
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
         <div>
-          <template v-for="(tag, index) in tags">
-            <a-tooltip v-if="tag.length > 20" :key="tag" :title="tag">
-              <a-tag :key="tag" :closable="index !== -1" :afterClose="() => handleClose(tag)" color="blue">
-                {{ `${tag.slice(0, 20)}...` }}
+          <template v-for="(port, index) in ports">
+            <a-tooltip v-if="port.length > 20" :key="port" :title="port">
+              <a-tag :key="port" :closable="index !== -1" :afterClose="() => handleClose(port)" color="blue">
+                {{ `${port.slice(0, 20)}...` }}
               </a-tag>
             </a-tooltip>
-            <a-tag v-else :key="tag" :closable="index !== -1" :afterClose="() => handleClose(tag)" color="blue">
-              {{ tag }}
+            <a-tag v-else :key="port" :closable="index !== -1" :afterClose="() => handleClose(port)" color="blue">
+              {{ port }}
             </a-tag>
           </template>
           <a-input
@@ -50,7 +38,7 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input value="test.com" />
+        <a-input v-model="domain" />
       </a-form-item>
       <a-form-item
         label="健康检查"
@@ -68,16 +56,14 @@
           <a-col :span="5">操作</a-col>
         </a-row>
         <a-row>
-          <a-col :span="6"><a-input v-model="serviceLabelTemp.key" /></a-col>
-          <a-col :span="6"><a-input v-model="serviceLabelTemp.value" /></a-col>
-          <a-col :span="6"><a-checkbox :checked="serviceLabelTemp.isReject">注入</a-checkbox></a-col>
-          <a-col :span="5"><a-button class="editable-add-btn" @click="handleAddLabel">添加</a-button></a-col>
-        </a-row>
-        <a-row :key="index" v-for="(lbl, index) in serviceLabels" >
-          <a-col :span="6">{{ lbl.key }}</a-col>
-          <a-col :span="6">{{ lbl.value }}</a-col>
-          <a-col :span="6">{{ lbl.isReject }}</a-col>
-          <a-col :span="5"><a-button class="editable-add-btn" @click="handleRemoveLabel(lbl.key)">移除</a-button></a-col>
+          <a-col :span="2"></a-col>
+          <a-col :span="2"></a-col>
+          <a-col :span="4"></a-col>
+          <a-col :span="2"></a-col>
+          <a-col :span="2"></a-col>
+          <a-col :span="3"></a-col>
+          <a-col :span="2"></a-col>
+          <a-col :span="5"><a-button class="editable-add-btn" @click="showDrawer">添加</a-button></a-col>
         </a-row>
       </a-form-item>
 
@@ -88,38 +74,148 @@
         </a-row>
       </a-form-item>
     </a-form>
+    <a-drawer
+      title="创建健康检测"
+      :width="720"
+      @close="onClose"
+      :visible="visible"
+      :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
+    >
+      <a-form :form="form" layout="vertical" hideRequiredMark>
+        <a-form-item
+          label="检查类型"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+        >
+          <a-radio-group buttonStyle="solid" v-model="healthType">
+            <a-radio-button value="HTTP">HTTP</a-radio-button>
+            <a-radio-button value="TCP">TCP</a-radio-button>
+            <a-radio-button value="CMD">CMD</a-radio-button>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item
+          label="端口"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          v-if="healthType==='HTTP' || healthType==='TCP'"
+        >
+          <a-input v-model="healthPort"/>
+        </a-form-item>
+        <a-form-item
+          label="健康检查命令"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          v-else
+        >
+          <a-input v-model="healthCmd"/>
+        </a-form-item>
+        <a-form-item
+          label="页面路径"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          v-if="healthType==='HTTP'"
+        >
+          <a-input v-model="healthPath"/>
+        </a-form-item>
+        <a-form-item
+          label="首次检查延时"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <a-input
+            addonAfter="秒"
+            v-model="healthInitialDelay"
+          />
+        </a-form-item>
+        <a-form-item
+          label="间隔"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <a-input
+            addonAfter="秒"
+            v-model="healthInterval"
+          />
+        </a-form-item>
+        <a-form-item
+          label="失败次数阈值"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <a-input
+            addonAfter="次"
+            v-model="healthFaliureThreshold"
+          />
+        </a-form-item>
+        <a-form-item
+          label="超时"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <a-input
+            addonAfter="秒"
+            v-model="healthTimeout"
+          />
+        </a-form-item>
+      </a-form>
+      <div
+        :style="{
+          position: 'absolute',
+          left: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+        }"
+      >
+        <a-button
+          :style="{marginRight: '8px'}"
+          @click="onClose"
+        >
+          取消
+        </a-button>
+        <a-button @click="onClose" type="primary">创建</a-button>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Step3',
+  props: {
+    basicDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       loading: false,
-      tags: ['80'],
+      ports: ['80'],
+      domain: '',
       inputVisible: false,
       inputValue: '',
       serviceLabelTemp: { key: 'project', value: 'techsun', isReject: true },
-      serviceLabels: [{
-        key: 'p1',
-        value: 'Edward King 0',
-        isReject: false
-      }, {
-        key: 'p2',
-        value: 'Edward King 1',
-        address: false
-      }]
+      visible: false,
+      form: this.$form.createForm(this),
+      healthType: 'HTTP',
+      healthPort: '80',
+      healthPath: '/healthz',
+      healthCmd: 'ls /tmp/',
+      healthInitialDelay: '100',
+      healthInterval: '60',
+      healthFaliureThreshold: '0',
+      healthTimeout: '20'
     }
+  },
+  created () {
+    // var self = this
   },
   methods: {
     nextStep () {
       const that = this
       that.$emit('nextStep')
-      // that.loading = true
-      // setTimeout(function () {
-      //   that.$emit('nextStep')
-      // }, 500)
     },
     prevStep () {
       this.$emit('prevStep')
@@ -141,9 +237,8 @@ export default {
       this.serviceLabels = this.serviceLabels.filter(t => t.key !== k)
     },
     handleClose (removedTag) {
-      const tags = this.tags.filter(tag => tag !== removedTag)
-      console.log(tags)
-      this.tags = tags
+      const ports = this.ports.filter(port => port !== removedTag)
+      this.ports = ports
     },
     showInput () {
       this.inputVisible = true
@@ -151,23 +246,26 @@ export default {
         this.$refs.input.focus()
       })
     },
-
     handleInputChange (e) {
       this.inputValue = e.target.value
     },
-
     handleInputConfirm () {
       const inputValue = this.inputValue
-      let tags = this.tags
-      if (inputValue && tags.indexOf(inputValue) === -1) {
-        tags = [...tags, inputValue]
+      let ports = this.ports
+      if (inputValue && ports.indexOf(inputValue) === -1) {
+        ports = [...ports, inputValue]
       }
-      console.log(tags)
       Object.assign(this, {
-        tags,
+        ports,
         inputVisible: false,
         inputValue: ''
       })
+    },
+    showDrawer () {
+      this.visible = true
+    },
+    onClose () {
+      this.visible = false
     }
   }
 }
