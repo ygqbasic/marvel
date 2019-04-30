@@ -74,8 +74,10 @@
       :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px',}"
     >
       <template>
-        <div style="color: #ffffff;margin:10px;background-color: #333;"> &nbsp; 容器名称:&nbsp;{{ webttyInfo.container }}&nbsp; &nbsp;  所属集群:&nbsp;{{ webttyInfo.cluster }}  &nbsp; &nbsp; 操作员:&nbsp;{{ webttyInfo.username }}&nbsp; &nbsp; 登录时间:&nbsp;{{ webttyInfo.time }}</div>
-        <a-textarea placeholder="日志" style="border: none;background-color: #333;width: 100%;height: '100%',color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+        <div style="background-color: #000;">
+          <div style="border: none;color: #ffffff;background-color: #000;"> &nbsp; 容器名称:&nbsp;{{ webttyInfo.container }}&nbsp; &nbsp;  所属集群:&nbsp;{{ webttyInfo.cluster }}  &nbsp; &nbsp; 操作员:&nbsp;{{ webttyInfo.username }}&nbsp; &nbsp; 登录时间:&nbsp;{{ webttyInfo.time }}</div>
+          <div id="terminal-container" style="border: none;background-color: #000;height: '100%',color: #ffffff;" ref="terminalDiv" ></div>
+        </div>
       </template>
       <div
         :style="{
@@ -108,7 +110,9 @@ import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getServiceDetail, getAppContainers } from '@/api/application'
 import { getWebttyInfo } from '@/api/service'
-
+// import "xterm/dist/xterm.css"
+// import { Terminal } from 'xterm'
+import Terminal from '@/utils/Xterm'
 const DetailListItem = DetailList.Item
 
 export default {
@@ -274,6 +278,7 @@ export default {
           console.log('1111')
           console.log(info)
           that.webttyInfo = info
+          that.socket()
           // 显示终端界面
           that.showWebttyPanel = true
         })
@@ -301,12 +306,129 @@ export default {
           console.log(info)
           that.appContainers = info
         })
+    },
+    socket (linkpath) {
+      var params = '?'// + $.param(this.offset || {})
+      params = params + '&pod=' + this.webttyInfo.pod + '&container=' + this.webttyInfo.container + '&namespace=' + this.webttyInfo.namespace + '&username=' + this.webttyInfo.username + '&token=' + this.webttyInfo.token + '&timestamp=' + this.webttyInfo.timestamp + '&cluster=' + this.webttyInfo.cluster
+      const ws = new WebSocket('ws:' + document.domain + ':8999/tty' + params)
+      // var that = this
+      var xterm = new Terminal({
+        cols: 20,
+        rows: 10,
+        screenKeys: true,
+        cursorBlink: false,
+        convertEol: true,
+        scrollback: 1000,
+        tabStopWidth: 4
+      })
+      xterm.open(document.getElementById('terminal-container'))
+      xterm.fit()
+      ws.onerror = function () {
+        xterm.write('Sorry! terminal connect error!please try again.\n')
+        window.clearInterval(xterm._blink)
+      }
+      ws.onmessage = function (event) {
+        console.log('on message:', event.data)
+        // xterm.write(that.decodeBase64Content(event.data))
+        xterm.write(event.data + '\n')
+      }
+      ws.onopen = function () {
+        xterm._initialized = true
+        console.log('ws onopen ')
+      }
+
+      console.log(xterm.element.classList)
+
+      // Log the keyCode of every keyDown event
+      // xterm.textarea.onkeydown = function (e) {
+      //   console.log('User pressed key with keyCode: ', e.keyCode)
+      //   // console.log('编码',)
+      //   // ws.send(that.encodeBase64Content(e.keyCode.toString()));
+      //   // ws.send('bHM=');
+      // }
+
+      xterm.attachCustomKeyEventHandler(function (e) {
+        if (e.keyCode === 13) {
+          console.log('enter')
+          ws.send('ls')
+          // return false
+        }
+      })
+      // xterm.on('data', function (data) {
+      //   console.log('data xterm=>', data)
+      //   // xterm.write(data);
+      //   ws.send(that.encodeBase64Content(data.toString()))
+      // })
+
+      xterm.on('output', arrayBuffer => {
+        console.log('output===', arrayBuffer)
+        xterm.write(arrayBuffer)
+      })
+
+      xterm.on('blur', arrayBuffer => {
+        console.log('blur===', arrayBuffer)
+        xterm.write(arrayBuffer)
+      })
+
+      xterm.on('focus', arrayBuffer => {
+        console.log('focus===', arrayBuffer)
+        xterm.write(arrayBuffer)
+      })
+
+      // xterm.on('keydown', arrayBuffer => {
+      //   console.log('keydown===', arrayBuffer)
+      //   xterm.write(arrayBuffer)
+      // })
+
+      xterm.on('lineFeed', arrayBuffer => {
+        console.log('lineFeed===', arrayBuffer)
+        xterm.write(arrayBuffer)
+      })
+
+      xterm.on('resize', size => {
+        ws.send('resize', [size.cols, size.rows])
+        console.log('resize', [size.cols, size.rows])
+      })
+    },
+    decodeBase64Content (base64Content) {
+      // base64 解码
+      let commonContent = base64Content.replace(/\s/g, '+')
+      commonContent = Buffer.from(commonContent, 'base64').toString()
+      return commonContent
+    },
+    encodeBase64Content (commonContent) {
+      // base64 编码
+      const base64Content = Buffer.from(commonContent).toString('base64')
+      return base64Content
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
+  // .terminal {
+  //   background-color: #000000;
+  //   color: #ffffff;
+  // }
+  // .terminal:not(.xterm-cursor-style-underline):not(.xterm-cursor-style-bar) .terminal-cursor {
+  //   color: #000000;
+  //   background: #cccccc;
+  // }
+  // .terminal:not(.focus) .terminal-cursor {
+  //   outline: 1px solid #000000;
+  //   outline-offset: -1px;
+  //   background-color: transparent;
+  // }
+
+  // ::-webkit-scrollbar {
+  //     width: 0.11em;
+  // }
+
+  // ::-webkit-scrollbar:horizontal
+  // {
+  //     height: 0.11em;
+  // }
+
   .page-menu-tabs {
     margin-top: 16px;
   }
