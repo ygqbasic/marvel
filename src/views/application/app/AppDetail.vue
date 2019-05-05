@@ -182,6 +182,7 @@ import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getAppDetail, getAppServices } from '@/api/application'
+import { clearInterval } from 'timers'
 
 const DetailListItem = DetailList.Item
 
@@ -198,6 +199,7 @@ export default {
     var name = this.$route.params.name
     console.log(name)
     return {
+      timer: null,
       clusterName: name,
       showAddHostPanel: false,
       showChart: false,
@@ -324,6 +326,16 @@ export default {
   mounted () {
     console.log(this.$route.params.name)
     this.$nextTick(() => { this.showChart = true })
+    if (this.timer) {
+      clearInterval(this.timer)
+    } else {
+      this.timer = setInterval(() => {
+        this.getAppDetail()
+      }, 30000)
+    }
+  },
+  destroyed () {
+    clearInterval(this.timer)
   },
   methods: {
     goServiceDetail (sid) {
@@ -342,8 +354,10 @@ export default {
           var info = res.result
           console.log('获取应用详情')
           console.log(info)
-          that.appDetail = info
-          this.getAppServices()
+          if (info) {
+            that.appDetail = info
+            this.getAppServices()
+          }
         })
     },
     getAppServices () {

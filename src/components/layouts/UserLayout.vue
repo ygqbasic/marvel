@@ -5,7 +5,7 @@
         <div class="header">
           <a href="/">
             <img src="~@/assets/logo.svg" class="logo" alt="logo">
-            <span class="title">MARVEL PRO</span>
+            <span class="title">Fuhsi Pro</span>
           </a>
         </div>
         <div class="desc">
@@ -22,7 +22,8 @@
           <a href="_self">条款</a>
         </div>
         <div class="copyright">
-          Copyright &copy; 2019 Marvel
+          Copyright &copy; 2019 Kubernetes & Istio
+
         </div>
       </div>
     </div>
