@@ -110,9 +110,9 @@ import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getServiceDetail, getAppContainers } from '@/api/application'
 import { getWebttyInfo } from '@/api/service'
-// import "xterm/dist/xterm.css"
-// import { Terminal } from 'xterm'
+import 'xterm/dist/xterm.css'
 import Terminal from '@/utils/Xterm'
+import { clearInterval, setInterval } from 'timers'
 const DetailListItem = DetailList.Item
 
 export default {
@@ -128,6 +128,7 @@ export default {
     var name = this.$route.params.name
     console.log(name)
     return {
+      timer: null,
       activeTabKey: '1',
       tabs: {
         items: [
@@ -162,7 +163,6 @@ export default {
         ],
         active: (key) => {
           console.log('激活tab')
-          console.log(key)
           // switch (this.$route.path) {
           //   case '/application/service/servicedetail/22':
           //     return '1'
@@ -202,6 +202,8 @@ export default {
       showChart: false,
       serviceDetail: {},
       appContainers: [],
+      xterm: null,
+      terminalSocket: null,
       webttyInfo: {},
       // form: this.$form.createForm(this),
       operationColumns: [
@@ -266,8 +268,18 @@ export default {
     this.getServiceDetail()
   },
   mounted () {
+    if (this.timer) {
+      clearInterval(this.timer)
+    } else {
+      this.timer = setInterval(() => {
+        this.getServiceDetail()
+      }, 10000)
+    }
     console.log(this.$route.params.name)
     this.$nextTick(() => { this.showChart = true })
+  },
+  destroyed () {
+    clearInterval(this.timer)
   },
   methods: {
     handleShowWebtty (id) {
@@ -279,12 +291,15 @@ export default {
           console.log(info)
           that.webttyInfo = info
           that.socket()
-          // 显示终端界面
-          that.showWebttyPanel = true
         })
+    },
+    onExitWebtty () {
+      this.terminalSocket.send('exit\r\n')
     },
     onWebttyPanelClose () {
       this.showWebttyPanel = false
+      this.terminalSocket.close()
+      this.xterm.destroy()
     },
     getServiceDetail () {
       var that = this
@@ -311,8 +326,8 @@ export default {
       var params = '?'// + $.param(this.offset || {})
       params = params + '&pod=' + this.webttyInfo.pod + '&container=' + this.webttyInfo.container + '&namespace=' + this.webttyInfo.namespace + '&username=' + this.webttyInfo.username + '&token=' + this.webttyInfo.token + '&timestamp=' + this.webttyInfo.timestamp + '&cluster=' + this.webttyInfo.cluster
       const ws = new WebSocket('ws:' + document.domain + ':8999/tty' + params)
-      // var that = this
-      var xterm = new Terminal({
+      var that = this
+      that.xterm = new Terminal({
         cols: 20,
         rows: 10,
         screenKeys: true,
@@ -321,23 +336,27 @@ export default {
         scrollback: 1000,
         tabStopWidth: 4
       })
-      xterm.open(document.getElementById('terminal-container'))
-      xterm.fit()
+      that.xterm.open(document.getElementById('terminal-container'))
+      that.xterm.fit()
       ws.onerror = function () {
-        xterm.write('Sorry! terminal connect error!please try again.\n')
-        window.clearInterval(xterm._blink)
+        that.xterm.write('Sorry! terminal connect error!please try again.\n')
+        window.clearInterval(that.xterm._blink)
       }
       ws.onmessage = function (event) {
         console.log('on message:', event.data)
         // xterm.write(that.decodeBase64Content(event.data))
-        xterm.write(event.data + '\n')
+        // that.xterm.write('\n' + that.decodeBase64Content(event.data))
+        // 显示终端界面
+        that.showWebttyPanel = true
       }
       ws.onopen = function () {
-        xterm._initialized = true
+        that.xterm._initialized = true
         console.log('ws onopen ')
       }
-
-      console.log(xterm.element.classList)
+      ws.onclose = function () {
+        console.log('ws closed ')
+      }
+      // console.log(that.xterm.element.classList)
 
       // Log the keyCode of every keyDown event
       // xterm.textarea.onkeydown = function (e) {
@@ -346,49 +365,22 @@ export default {
       //   // ws.send(that.encodeBase64Content(e.keyCode.toString()));
       //   // ws.send('bHM=');
       // }
+      that.terminalSocket = ws
+      that.xterm.attach(ws)
+      // that.xterm._initialized = true
 
-      xterm.attachCustomKeyEventHandler(function (e) {
-        if (e.keyCode === 13) {
-          console.log('enter')
-          ws.send('ls')
-          // return false
-        }
-      })
-      // xterm.on('data', function (data) {
+      // that.xterm.attachCustomKeyEventHandler(function (e) {
+      //   if (e.keyCode === 13) {
+      //     console.log('enter event send')
+      //     ws.send(that.encodeBase64Content(tempAction))
+      //     return false
+      //   }
+      // })
+      // that.xterm.on('data', function (data) {
       //   console.log('data xterm=>', data)
-      //   // xterm.write(data);
-      //   ws.send(that.encodeBase64Content(data.toString()))
+      //   // tempAction += data
+      //   // that.xterm.write(data)
       // })
-
-      xterm.on('output', arrayBuffer => {
-        console.log('output===', arrayBuffer)
-        xterm.write(arrayBuffer)
-      })
-
-      xterm.on('blur', arrayBuffer => {
-        console.log('blur===', arrayBuffer)
-        xterm.write(arrayBuffer)
-      })
-
-      xterm.on('focus', arrayBuffer => {
-        console.log('focus===', arrayBuffer)
-        xterm.write(arrayBuffer)
-      })
-
-      // xterm.on('keydown', arrayBuffer => {
-      //   console.log('keydown===', arrayBuffer)
-      //   xterm.write(arrayBuffer)
-      // })
-
-      xterm.on('lineFeed', arrayBuffer => {
-        console.log('lineFeed===', arrayBuffer)
-        xterm.write(arrayBuffer)
-      })
-
-      xterm.on('resize', size => {
-        ws.send('resize', [size.cols, size.rows])
-        console.log('resize', [size.cols, size.rows])
-      })
     },
     decodeBase64Content (base64Content) {
       // base64 解码
@@ -428,7 +420,31 @@ export default {
   // {
   //     height: 0.11em;
   // }
-
+  // .xterm-helper-textarea {
+  //     /*
+  //     * HACK: to fix IE's blinking cursor
+  //     * Move textarea out of the screen to the far left, so that the cursor is not visible.
+  //     */
+  //     position: absolute;
+  //     opacity: 0;
+  //     left: -9999em;
+  //     top: 0;
+  //     width: 0;
+  //     height: 0;
+  //     z-index: -10;
+  //     /** Prevent wrapping so the IME appears against the textarea at the correct position */
+  //     white-space: nowrap;
+  //     overflow: hidden;
+  //     resize: none;
+  // }
+  // .xterm-helpers {
+  //   height: 0;
+  // }
+  // .terminal .xterm-rows {
+  //     position: absolute;
+  //     left: 0;
+  //     top: 0;
+  // }
   .page-menu-tabs {
     margin-top: 16px;
   }
