@@ -108,6 +108,12 @@ export default {
       default: function () {
         return {}
       }
+    },
+    preDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
     }
   },
   components: {
@@ -127,6 +133,17 @@ export default {
       finishDataInfo: {}
     }
   },
+  created () {
+    var self = this
+    if (self.preDataInfo.step4 !== null && self.preDataInfo.step4 !== undefined && JSON.stringify(self.preDataInfo.step4) !== '{}') {
+      self.replicas = self.preDataInfo.step4.Replicas
+      self.replicasMin = self.preDataInfo.step4.ReplicasMin
+      self.replicasMax = self.preDataInfo.step4.ReplicasMax
+      self.envs = self.preDataInfo.step4.Envs
+      self.logPath = self.preDataInfo.step4.LogPath
+      self.configData = self.preDataInfo.step4.ConfigData
+    }
+  },
   methods: {
     finish () {
       var self = this
@@ -138,19 +155,32 @@ export default {
         'LogPath': self.logPath,
         'ConfigData': self.configData
       }
-      var tempObj = {
-        'step1': self.healthDataInfo.step1,
-        'step2': self.healthDataInfo.step2,
-        'step3': self.healthDataInfo.step3,
-        'step4': self.finishDataInfo
-      }
-      self.$emit('finish', tempObj)
+      // var tempObj = {
+      //   'step1': self.healthDataInfo.step1,
+      //   'step2': self.healthDataInfo.step2,
+      //   'step3': self.healthDataInfo.step3,
+      //   'step4': self.finishDataInfo
+      // }
+      var outputObjJson = self.preDataInfo
+      outputObjJson['step4'] = self.finishDataInfo
+      self.$emit('finish', outputObjJson)
     },
     toOrderList () {
       this.$router.push('/list/query-list')
     },
     prevStep () {
-      this.$emit('prevStep')
+      var self = this
+      self.finishDataInfo = {
+        'Replicas': self.replicas,
+        'ReplicasMin': self.replicasMin,
+        'ReplicasMax': self.replicasMax,
+        'Envs': self.envs,
+        'LogPath': self.logPath,
+        'ConfigData': self.configData
+      }
+      var outputObjJson = self.preDataInfo
+      outputObjJson['step4'] = self.finishDataInfo
+      self.$emit('prevStep', outputObjJson)
     },
     handleAddLabel () {
       var l = this.serviceLabels.find(c => c.key === this.serviceLabelTemp.key)

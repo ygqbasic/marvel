@@ -81,6 +81,14 @@ import { getGUID } from '@/utils/util'
 
 export default {
   name: 'Step1',
+  props: {
+    preDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       ents: [],
@@ -115,15 +123,21 @@ export default {
     }
   },
   created () {
-    this.getEnts()
+    var self = this
+    self.getEnts()
+    if (self.preDataInfo.step1 !== null && self.preDataInfo.step1 !== undefined && JSON.stringify(self.preDataInfo.step1) !== '{}') {
+
+    }
   },
   methods: {
     nextStep () {
       var self = this
-      var tempObj = {
-        'step1': self.imageDataInfo
-      }
-      self.$emit('nextStep', tempObj)
+      // var tempObj = {
+      //   'step1': self.imageDataInfo
+      // }
+      var outputObjJson = self.preDataInfo
+      outputObjJson['step1'] = self.imageDataInfo
+      self.$emit('nextStep', outputObjJson)
     },
     getEnts () {
       var that = this

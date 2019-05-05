@@ -117,6 +117,12 @@ export default {
       default: function () {
         return {}
       }
+    },
+    preDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
     }
   },
   data () {
@@ -156,6 +162,17 @@ export default {
   },
   created () {
     var self = this
+    if (self.preDataInfo.step2 !== null && self.preDataInfo.step2 !== undefined && JSON.stringify(self.preDataInfo.step2) !== '{}') {
+      self.appName = self.preDataInfo.step2.AppName
+      self.serviceName = self.preDataInfo.step2.ServiceName
+      self.resourceName = self.preDataInfo.step2.ResourceName
+      self.deployType = self.preDataInfo.step2.serviceType
+      self.imageName = self.preDataInfo.step2.ImageRegistry
+      self.chooseCpu = self.preDataInfo.step2.Cpu
+      self.chooseMem = self.preDataInfo.step2.Memory
+      self.serviceLabels = self.preDataInfo.step2.ServiceLablesData
+      self.imageTag = self.preDataInfo.step2.Version
+    }
     self.initResourceNameArra()
 
     if (self.flowDataInfo != null && self.flowDataInfo !== {}) {
@@ -200,11 +217,13 @@ export default {
           'ServiceLablesData': self.serviceLabels,
           'Version': self.imageTag
         }
-        var tempObj = {
-          'step1': self.flowDataInfo.step1,
-          'step2': self.basicDataInfo
-        }
-        self.$emit('nextStep', tempObj)
+        // var tempObj = {
+        //   'step1': self.flowDataInfo.step1,
+        //   'step2': self.basicDataInfo
+        // }
+        var outputObjJson = self.preDataInfo
+        outputObjJson['step2'] = self.basicDataInfo
+        self.$emit('nextStep', outputObjJson)
       }
     },
     prevStep () {

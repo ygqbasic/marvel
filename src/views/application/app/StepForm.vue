@@ -7,10 +7,10 @@
       <a-step title="高级设置" />
     </a-steps>
     <div class="content">
-      <step1 v-if="currentTab === 0" @nextStep="nextStep"/>
-      <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :flowDataInfo="flowDataInfo"/>
-      <step3 v-if="currentTab === 2" @prevStep="prevStep" @nextStep="nextStep" :basicDataInfo="basicDataInfo"/>
-      <step4 v-if="currentTab === 3" @prevStep="prevStep" @finish="finish" :healthDataInfo="healthDataInfo"/>
+      <step1 v-if="currentTab === 0" @nextStep="nextStep" :preDataInfo="preDataInfo"/>
+      <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :flowDataInfo="flowDataInfo" :preDataInfo="preDataInfo"/>
+      <step3 v-if="currentTab === 2" @prevStep="prevStep" @nextStep="nextStep" :basicDataInfo="basicDataInfo" :preDataInfo="preDataInfo"/>
+      <step4 v-if="currentTab === 3" @prevStep="prevStep" @finish="finish" :healthDataInfo="healthDataInfo" :preDataInfo="preDataInfo"/>
     </div>
   </a-card>
 </template>
@@ -40,7 +40,8 @@ export default {
 
       flowDataInfo: {},
       basicDataInfo: {},
-      healthDataInfo: {}
+      healthDataInfo: {},
+      preDataInfo: {}
     }
   },
   methods: {
@@ -51,28 +52,35 @@ export default {
       if (self.currentTab === 0) {
         self.currentTab += 1
         self.flowDataInfo = val
+        self.preDataInfo = val
       } else if (self.currentTab === 1) {
         self.currentTab += 1
         self.basicDataInfo = val
+        self.preDataInfo = val
       } else if (self.currentTab === 2) {
         self.currentTab += 1
         self.healthDataInfo = val
+        self.preDataInfo = val
       }
     },
-    prevStep () {
+    prevStep (val) {
       if (this.currentTab > 0) {
+        if (this.currentTab === 3) {
+          this.preDataInfo = val
+        }
         this.currentTab -= 1
       }
     },
     finish (val) {
       var self = this
+      self.preDataInfo = val
       var serviceObj = {
         'AppName': val.step2.AppName,
         'ServiceName': val.step2.ServiceName,
         'serviceType': val.step2.serviceType,
         'ImageRegistry': val.step2.ImageRegistry,
-        'Cpu': val.step2.Cpu,
-        'Memory': val.step2.Memory,
+        'Cpu': Number(val.step2.Cpu),
+        'Memory': Number(val.step2.Memory),
         'LabelsKey': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['Key'] : '',
         'LabelsValue': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['Value'] : '',
         'LabelsK8s': val.step2.ServiceLablesData.length > 0 ? val.step2.ServiceLablesData['K8s'] ? 'off' : 'on' : '',

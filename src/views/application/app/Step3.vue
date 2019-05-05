@@ -199,6 +199,12 @@ export default {
       default: function () {
         return {}
       }
+    },
+    preDataInfo: {
+      type: Object,
+      default: function () {
+        return {}
+      }
     }
   },
   data () {
@@ -225,7 +231,12 @@ export default {
     }
   },
   created () {
-    // var self = this
+    var self = this
+    if (self.preDataInfo.step3 !== null && self.preDataInfo.step3 !== undefined && JSON.stringify(self.preDataInfo.step3) !== '{}') {
+      self.domain = self.preDataInfo.step3.Domain
+      self.ports = self.preDataInfo.step3.ContainerPort.split(',')
+      self.healthData.push(JSON.parse(self.preDataInfo.step3.HealthData))
+    }
   },
   methods: {
     nextStep () {
@@ -262,13 +273,16 @@ export default {
         'Domain': self.domain
       }
 
-      var outPutObj = {
-        'step1': self.basicDataInfo.step1,
-        'step2': self.basicDataInfo.step2,
-        'step3': self.healthDataInfo
-      }
+      // var outPutObj = {
+      //   'step1': self.basicDataInfo.step1,
+      //   'step2': self.basicDataInfo.step2,
+      //   'step3': self.healthDataInfo
+      // }
 
-      self.$emit('nextStep', outPutObj)
+      var outputObjJson = self.preDataInfo
+      outputObjJson['step3'] = self.healthDataInfo
+
+      self.$emit('nextStep', outputObjJson)
     },
     prevStep () {
       this.$emit('prevStep')
