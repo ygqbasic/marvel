@@ -135,6 +135,8 @@ export default {
       //   'step1': self.imageDataInfo
       // }
       var outputObjJson = self.preDataInfo
+      self.imageDataInfo['selectEnt'] = self.selectEnt
+      self.imageDataInfo['selectedcluster'] = self.selectedcluster
       outputObjJson['step1'] = self.imageDataInfo
       self.$emit('nextStep', outputObjJson)
     },
@@ -151,7 +153,6 @@ export default {
         })
     },
     handleEntChange (value) {
-      console.log(this.selectEnt)
       this.getImages()
       if (this.clustersData[value] !== '') {
         this.clusters = this.clustersData[value]
