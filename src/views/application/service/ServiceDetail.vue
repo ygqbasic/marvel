@@ -70,13 +70,14 @@
       title="容器终端"
       :width="720"
       @close="onWebttyPanelClose"
+      :maskClosable="false"
       :visible="showWebttyPanel"
       :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px',}"
     >
       <template>
         <div style="background-color: #000;">
-          <div style="border: none;color: #ffffff;background-color: #000;"> &nbsp; 容器名称:&nbsp;{{ webttyInfo.container }}&nbsp; &nbsp;  所属集群:&nbsp;{{ webttyInfo.cluster }}  &nbsp; &nbsp; 操作员:&nbsp;{{ webttyInfo.username }}&nbsp; &nbsp; 登录时间:&nbsp;{{ webttyInfo.time }}</div>
-          <div id="terminal-container" style="border: none;background-color: #000;height: '100%',color: #ffffff;" ref="terminalDiv" ></div>
+          <div style="border: none;color: #fff;background-color: #000;"> &nbsp; 容器名称:&nbsp;{{ webttyInfo.container }}&nbsp; &nbsp;  所属集群:&nbsp;{{ webttyInfo.cluster }}  &nbsp; &nbsp; 操作员:&nbsp;{{ webttyInfo.username }}&nbsp; &nbsp; 登录时间:&nbsp;{{ webttyInfo.time }}</div>
+          <div id="terminalcontainer" style="border: none;background-color: #000;height: '100%'" ref="terminalcontainer" ></div>
         </div>
       </template>
       <div
@@ -161,8 +162,9 @@ export default {
             title: '日志'
           }
         ],
-        active: (key) => {
-          console.log('激活tab')
+        active: () => {
+          console.log('激活tab' + this.activeTabKey)
+          return this.activeTabKey
           // switch (this.$route.path) {
           //   case '/application/service/servicedetail/22':
           //     return '1'
@@ -175,6 +177,7 @@ export default {
           // }
         },
         callback: (key) => {
+          console.log('点击tab：' + key)
           this.activeTabKey = key
           // switch (key) {
           //   case '1':
@@ -198,7 +201,7 @@ export default {
         }
       },
       clusterName: name,
-      showWebttyPanel: false,
+      showWebttyPanel: true,
       showChart: false,
       serviceDetail: {},
       appContainers: [],
@@ -250,21 +253,23 @@ export default {
   filters: {
     statusFilter (status) {
       const statusMap = {
-        '运行中': status,
-        '不可调度': status
+        'Running': status,
+        'False': status,
+        'Pending': status
       }
       return statusMap[status]
     },
     statusTypeFilter (type) {
       const statusTypeMap = {
-        '运行中': 'success',
-        '不可调度': 'error'
+        'Running': 'success',
+        'False': 'error',
+        'Pending': 'warning'
       }
       return statusTypeMap[type]
     }
   },
   created () {
-    console.log('222')
+    this.showWebttyPanel = false
     this.getServiceDetail()
   },
   mounted () {
@@ -287,7 +292,6 @@ export default {
       getWebttyInfo(id)
         .then(res => {
           var info = res.result
-          console.log('1111')
           console.log(info)
           that.webttyInfo = info
           that.socket()
@@ -323,21 +327,12 @@ export default {
         })
     },
     socket (linkpath) {
+      var that = this
+
       var params = '?'// + $.param(this.offset || {})
       params = params + '&pod=' + this.webttyInfo.pod + '&container=' + this.webttyInfo.container + '&namespace=' + this.webttyInfo.namespace + '&username=' + this.webttyInfo.username + '&token=' + this.webttyInfo.token + '&timestamp=' + this.webttyInfo.timestamp + '&cluster=' + this.webttyInfo.cluster
       const ws = new WebSocket('ws:' + document.domain + ':8999/tty' + params)
-      var that = this
-      that.xterm = new Terminal({
-        cols: 20,
-        rows: 10,
-        screenKeys: true,
-        cursorBlink: false,
-        convertEol: true,
-        scrollback: 1000,
-        tabStopWidth: 4
-      })
-      that.xterm.open(document.getElementById('terminal-container'))
-      that.xterm.fit()
+
       ws.onerror = function () {
         that.xterm.write('Sorry! terminal connect error!please try again.\n')
         window.clearInterval(that.xterm._blink)
@@ -350,14 +345,12 @@ export default {
         that.showWebttyPanel = true
       }
       ws.onopen = function () {
-        that.xterm._initialized = true
         console.log('ws onopen ')
       }
       ws.onclose = function () {
         console.log('ws closed ')
       }
       // console.log(that.xterm.element.classList)
-
       // Log the keyCode of every keyDown event
       // xterm.textarea.onkeydown = function (e) {
       //   console.log('User pressed key with keyCode: ', e.keyCode)
@@ -365,6 +358,18 @@ export default {
       //   // ws.send(that.encodeBase64Content(e.keyCode.toString()));
       //   // ws.send('bHM=');
       // }
+      that.xterm = new Terminal({
+        cols: 20,
+        rows: 40,
+        screenKeys: true,
+        cursorBlink: false,
+        convertEol: true,
+        scrollback: 1000,
+        tabStopWidth: 4
+      })
+      that.xterm.open(that.$refs.terminalcontainer)
+      that.xterm._initialized = true
+      that.xterm.fit()
       that.terminalSocket = ws
       that.xterm.attach(ws)
       // that.xterm._initialized = true
@@ -397,98 +402,10 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-  // .terminal {
-  //   background-color: #000000;
-  //   color: #ffffff;
-  // }
-  // .terminal:not(.xterm-cursor-style-underline):not(.xterm-cursor-style-bar) .terminal-cursor {
-  //   color: #000000;
-  //   background: #cccccc;
-  // }
-  // .terminal:not(.focus) .terminal-cursor {
-  //   outline: 1px solid #000000;
-  //   outline-offset: -1px;
-  //   background-color: transparent;
-  // }
-
-  // ::-webkit-scrollbar {
-  //     width: 0.11em;
-  // }
-
-  // ::-webkit-scrollbar:horizontal
-  // {
-  //     height: 0.11em;
-  // }
-  // .xterm-helper-textarea {
-  //     /*
-  //     * HACK: to fix IE's blinking cursor
-  //     * Move textarea out of the screen to the far left, so that the cursor is not visible.
-  //     */
-  //     position: absolute;
-  //     opacity: 0;
-  //     left: -9999em;
-  //     top: 0;
-  //     width: 0;
-  //     height: 0;
-  //     z-index: -10;
-  //     /** Prevent wrapping so the IME appears against the textarea at the correct position */
-  //     white-space: nowrap;
-  //     overflow: hidden;
-  //     resize: none;
-  // }
-  // .xterm-helpers {
-  //   height: 0;
-  // }
-  // .terminal .xterm-rows {
-  //     position: absolute;
-  //     left: 0;
-  //     top: 0;
-  // }
-  .page-menu-tabs {
-    margin-top: 16px;
-  }
-  .detail-layout {
-    margin-left: 44px;
-  }
-  .text {
-    text-align: center;
-    color: #1a78c4;// rgba(0, 0, 0, .45);
+<style lang="css">
+  .xterm .xterm-viewport{
+    /*test*/
+    overflow-y: hidden !important;
   }
 
-  .heading {
-    text-align: center;
-    color: #1a78c4;// rgba(0, 0, 0, .85);
-    font-size: 20px;
-  }
-
-  .running {
-    animation:rotating 1.2s linear infinite;
-  }
-
-  .no-data {
-    color: rgba(0, 0, 0, .25);
-    text-align: center;
-    line-height: 64px;
-    font-size: 16px;
-
-    i {
-      font-size: 24px;
-      margin-right: 16px;
-      position: relative;
-      top: 3px;
-    }
-  }
-
-  .mobile {
-    .detail-layout {
-      margin-left: unset;
-    }
-    .text {
-
-    }
-    .status-list {
-      text-align: left;
-    }
-  }
 </style>
