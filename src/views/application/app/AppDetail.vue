@@ -52,7 +52,7 @@
             title="添加主机"
             :width="720"
             @close="onAddHostPanelClose"
-            maskClosable="false"
+            :maskClosable="false"
             :visible="showAddHostPanel"
             :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
           >

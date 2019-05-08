@@ -46,12 +46,11 @@
       />
       <a-form-item>
         <a-card
-          :bordered="false"
-          title="镜像列表">
+          :bordered="false">
 
-          <div slot="extra">
+          <!-- <div slot="extra">
             <a-input-search style="margin-left: 16px; width: 272px;" v-model="cloudimgname" />
-          </div>
+          </div> -->
 
           <a-table :columns="columns" :dataSource="data" :loading="tableLoading" :rowKey="record => record.ImageId">
             <span slot="action" slot-scope="text, record">
@@ -65,7 +64,7 @@
 
         </a-card>
       </a-form-item>
-      <a-form-item :wrapperCol="{span: 19, offset: 5}">
+      <a-form-item :wrapperCol="{span: 24, offset: 18}">
         <a-button type="primary" @click="nextStep" v-if="chooseCloudImageId!=''">下一步</a-button>
         <a-button type="primary" disabled v-else>下一步</a-button>
       </a-form-item>
