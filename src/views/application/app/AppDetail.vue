@@ -363,7 +363,7 @@ export default {
     },
     getAppServices () {
       var that = this
-      getAppServices(that.appDetail.AppName, 'AKS')
+      getAppServices(that.appDetail.AppName, that.appDetail.ClusterName)
         .then(res => {
           var info = res.result.data
           console.log(`serviceList:${info}`)
