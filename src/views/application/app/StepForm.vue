@@ -6,6 +6,7 @@
       <a-step title="网络设置" />
       <a-step title="高级设置" />
     </a-steps>
+
     <div class="content">
       <step1 v-if="currentTab === 0" @nextStep="nextStep" :preDataInfo="preDataInfo"/>
       <step2 v-if="currentTab === 1" @nextStep="nextStep" @prevStep="prevStep" :flowDataInfo="flowDataInfo" :preDataInfo="preDataInfo"/>

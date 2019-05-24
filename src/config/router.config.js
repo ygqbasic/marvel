@@ -44,7 +44,7 @@ export const asyncRouterMap = [
       {
         path: '/application',
         redirect: '/application/app',
-        component: RouteView,
+        component: PageView,
         meta: { title: '应用管理', icon: 'appstore', permission: [ 'dashboard' ] },
         children: [
           {
@@ -54,18 +54,16 @@ export const asyncRouterMap = [
             meta: { title: '应用列表', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
-            path: '/application/appdetail/:id',
-            name: 'appdetail',
-            props: true,
-            hidden: true,
-            component: () => import('@/views/application/app/AppDetail'),
-            meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
             path: '/application/app/add',
             name: 'appadd',
             component: () => import('@/views/application/app/StepForm'),
             meta: { title: '应用发布', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/config/list',
+            name: 'configlist',
+            component: () => import('@/views/application/config/ConfigList'),
+            meta: { title: '应用配置', keepAlive: false, permission: [ 'dashboard' ] }
           },
           {
             path: '/application/servicedetail/:id',
@@ -104,6 +102,38 @@ export const asyncRouterMap = [
           }
         ]
       },
+      // 基础设施
+      {
+        path: '/base',
+        name: 'base',
+        component: PageView,
+        redirect: '/base/query-list',
+        meta: { title: '基础设施', icon: 'radar-chart', hiddenHeaderContent: true, permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/base/cluster',
+            name: 'cluster',
+            hiddenHeaderContent: true,
+            component: () => import('@/views/base/ClusterList'),
+            meta: { title: '群集管理', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/base/query-list',
+            name: 'QueryListWrapper',
+            hiddenHeaderContent: true,
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/base/TableList'),
+            meta: { title: '证书管理', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            hiddenHeaderContent: true,
+            path: '/base/basic-list',
+            name: 'BasicList',
+            component: () => import('@/views/base/StandardList'),
+            meta: { title: '资源配置', keepAlive: false, permission: [ 'dashboard' ] }
+          }
+        ]
+      },
       // system
       {
         path: '/system',
@@ -138,38 +168,6 @@ export const asyncRouterMap = [
           }
         ]
       },
-      // 基础设施
-      {
-        path: '/base',
-        name: 'base',
-        component: PageView,
-        redirect: '/base/query-list',
-        meta: { title: '基础设施', icon: 'radar-chart', hiddenHeaderContent: true, permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/base/cluster',
-            name: 'cluster',
-            hiddenHeaderContent: true,
-            component: () => import('@/views/base/ClusterList'),
-            meta: { title: '群集管理', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/base/query-list',
-            name: 'QueryListWrapper',
-            hiddenHeaderContent: true,
-            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/base/TableList'),
-            meta: { title: '证书管理', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
-            hiddenHeaderContent: true,
-            path: '/base/basic-list',
-            name: 'BasicList',
-            component: () => import('@/views/base/StandardList'),
-            meta: { title: '资源配置', keepAlive: false, permission: [ 'dashboard' ] }
-          }
-        ]
-      },
       // 子页面
       {
         path: '/base/detail/:name',
@@ -186,156 +184,164 @@ export const asyncRouterMap = [
             hiddenHeaderContent: true,
             component: () => import('@/views/base/ClusterDetail'),
             meta: { title: '群集详情', keepAlive: false, permission: [ 'dashboard' ] }
-          }
-        ]
-      },
-      // profile
-      {
-        path: '/profile',
-        name: 'profile',
-        component: RouteView,
-        redirect: '/profile/basic',
-        meta: { title: '详情页', icon: 'profile', permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/profile/basic',
-            name: 'ProfileBasic',
-            component: () => import('@/views/profile/basic/Index'),
-            meta: { title: '基础详情页', permission: [ 'dashboard' ] }
           },
           {
-            path: '/profile/advanced',
-            name: 'ProfileAdvanced',
-            component: () => import('@/views/profile/advanced/Advanced'),
-            meta: { title: '高级详情页', permission: [ 'dashboard' ] }
-          }
-        ]
-      },
-      // result
-      {
-        path: '/result',
-        name: 'result',
-        component: PageView,
-        redirect: '/result/success',
-        meta: { title: '结果页', icon: 'check-circle-o', permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/result/success',
-            name: 'ResultSuccess',
-            component: () => import(/* webpackChunkName: "result" */ '@/views/result/Success'),
-            meta: { title: '成功', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/result/fail',
-            name: 'ResultFail',
-            component: () => import(/* webpackChunkName: "result" */ '@/views/result/Error'),
-            meta: { title: '失败', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
-          }
-        ]
-      },
-
-      // Exception
-      {
-        path: '/exception',
-        name: 'exception',
-        component: RouteView,
-        redirect: '/exception/403',
-        meta: { title: '异常页', icon: 'warning', permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/exception/403',
-            name: 'Exception403',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/403'),
-            meta: { title: '403', permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/exception/404',
-            name: 'Exception404',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404'),
-            meta: { title: '404', permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/exception/500',
-            name: 'Exception500',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/500'),
-            meta: { title: '500', permission: [ 'dashboard' ] }
-          }
-        ]
-      },
-
-      // account
-      {
-        path: '/account',
-        component: RouteView,
-        redirect: '/account/center',
-        name: 'account',
-        meta: { title: '个人页', icon: 'user', keepAlive: true, permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/account/center',
-            name: 'center',
-            component: () => import('@/views/account/center/Index'),
-            meta: { title: '个人中心', keepAlive: true, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/account/settings',
-            name: 'settings',
-            component: () => import('@/views/account/settings/Index'),
-            meta: { title: '个人设置', hideHeader: true, permission: [ 'dashboard' ] },
-            redirect: '/account/settings/base',
-            hideChildrenInMenu: true,
-            children: [
-              {
-                path: '/account/settings/base',
-                name: 'BaseSettings',
-                component: () => import('@/views/account/settings/BaseSetting'),
-                meta: { title: '基本设置', hidden: true, permission: [ 'dashboard' ] }
-              },
-              {
-                path: '/account/settings/security',
-                name: 'SecuritySettings',
-                component: () => import('@/views/account/settings/Security'),
-                meta: { title: '安全设置', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
-              },
-              {
-                path: '/account/settings/custom',
-                name: 'CustomSettings',
-                component: () => import('@/views/account/settings/Custom'),
-                meta: { title: '个性化设置', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
-              },
-              {
-                path: '/account/settings/binding',
-                name: 'BindingSettings',
-                component: () => import('@/views/account/settings/Binding'),
-                meta: { title: '账户绑定', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
-              },
-              {
-                path: '/account/settings/notification',
-                name: 'NotificationSettings',
-                component: () => import('@/views/account/settings/Notification'),
-                meta: { title: '新消息通知', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
-              }
-            ]
-          }
-        ]
-      },
-
-      // other
-      {
-        path: '/other',
-        name: 'otherPage',
-        component: PageView,
-        meta: { title: '其他组件', icon: 'slack', permission: [ 'dashboard' ] },
-        redirect: '/other/icon-selector',
-        children: [
-          {
-            path: '/other/icon-selector',
-            name: 'TestIconSelect',
-            component: () => import('@/views/other/IconSelectorView'),
-            meta: { title: 'IconSelector', keepAlive: true, permission: [ 'dashboard' ] }
+            path: '/application/appdetail/:id',
+            name: 'appdetail',
+            props: true,
+            hidden: true,
+            component: () => import('@/views/application/app/AppDetail'),
+            meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       }
+      // // profile
+      // {
+      //   path: '/profile',
+      //   name: 'profile',
+      //   component: RouteView,
+      //   redirect: '/profile/basic',
+      //   meta: { title: '详情页', icon: 'profile', permission: [ 'dashboard' ] },
+      //   children: [
+      //     {
+      //       path: '/profile/basic',
+      //       name: 'ProfileBasic',
+      //       component: () => import('@/views/profile/basic/Index'),
+      //       meta: { title: '基础详情页', permission: [ 'dashboard' ] }
+      //     },
+      //     {
+      //       path: '/profile/advanced',
+      //       name: 'ProfileAdvanced',
+      //       component: () => import('@/views/profile/advanced/Advanced'),
+      //       meta: { title: '高级详情页', permission: [ 'dashboard' ] }
+      //     }
+      //   ]
+      // },
+      // // result
+      // {
+      //   path: '/result',
+      //   name: 'result',
+      //   component: PageView,
+      //   redirect: '/result/success',
+      //   meta: { title: '结果页', icon: 'check-circle-o', permission: [ 'dashboard' ] },
+      //   children: [
+      //     {
+      //       path: '/result/success',
+      //       name: 'ResultSuccess',
+      //       component: () => import(/* webpackChunkName: "result" */ '@/views/result/Success'),
+      //       meta: { title: '成功', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
+      //     },
+      //     {
+      //       path: '/result/fail',
+      //       name: 'ResultFail',
+      //       component: () => import(/* webpackChunkName: "result" */ '@/views/result/Error'),
+      //       meta: { title: '失败', keepAlive: false, hiddenHeaderContent: true, permission: [ 'dashboard' ] }
+      //     }
+      //   ]
+      // },
+
+      // // Exception
+      // {
+      //   path: '/exception',
+      //   name: 'exception',
+      //   component: RouteView,
+      //   redirect: '/exception/403',
+      //   meta: { title: '异常页', icon: 'warning', permission: [ 'dashboard' ] },
+      //   children: [
+      //     {
+      //       path: '/exception/403',
+      //       name: 'Exception403',
+      //       component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/403'),
+      //       meta: { title: '403', permission: [ 'dashboard' ] }
+      //     },
+      //     {
+      //       path: '/exception/404',
+      //       name: 'Exception404',
+      //       component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404'),
+      //       meta: { title: '404', permission: [ 'dashboard' ] }
+      //     },
+      //     {
+      //       path: '/exception/500',
+      //       name: 'Exception500',
+      //       component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/500'),
+      //       meta: { title: '500', permission: [ 'dashboard' ] }
+      //     }
+      //   ]
+      // },
+
+      // // account
+      // {
+      //   path: '/account',
+      //   component: RouteView,
+      //   redirect: '/account/center',
+      //   name: 'account',
+      //   meta: { title: '个人页', icon: 'user', keepAlive: true, permission: [ 'dashboard' ] },
+      //   children: [
+      //     {
+      //       path: '/account/center',
+      //       name: 'center',
+      //       component: () => import('@/views/account/center/Index'),
+      //       meta: { title: '个人中心', keepAlive: true, permission: [ 'dashboard' ] }
+      //     },
+      //     {
+      //       path: '/account/settings',
+      //       name: 'settings',
+      //       component: () => import('@/views/account/settings/Index'),
+      //       meta: { title: '个人设置', hideHeader: true, permission: [ 'dashboard' ] },
+      //       redirect: '/account/settings/base',
+      //       hideChildrenInMenu: true,
+      //       children: [
+      //         {
+      //           path: '/account/settings/base',
+      //           name: 'BaseSettings',
+      //           component: () => import('@/views/account/settings/BaseSetting'),
+      //           meta: { title: '基本设置', hidden: true, permission: [ 'dashboard' ] }
+      //         },
+      //         {
+      //           path: '/account/settings/security',
+      //           name: 'SecuritySettings',
+      //           component: () => import('@/views/account/settings/Security'),
+      //           meta: { title: '安全设置', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
+      //         },
+      //         {
+      //           path: '/account/settings/custom',
+      //           name: 'CustomSettings',
+      //           component: () => import('@/views/account/settings/Custom'),
+      //           meta: { title: '个性化设置', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
+      //         },
+      //         {
+      //           path: '/account/settings/binding',
+      //           name: 'BindingSettings',
+      //           component: () => import('@/views/account/settings/Binding'),
+      //           meta: { title: '账户绑定', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
+      //         },
+      //         {
+      //           path: '/account/settings/notification',
+      //           name: 'NotificationSettings',
+      //           component: () => import('@/views/account/settings/Notification'),
+      //           meta: { title: '新消息通知', hidden: true, keepAlive: true, permission: [ 'dashboard' ] }
+      //         }
+      //       ]
+      //     }
+      //   ]
+      // },
+
+      // // other
+      // {
+      //   path: '/other',
+      //   name: 'otherPage',
+      //   component: PageView,
+      //   meta: { title: '其他组件', icon: 'slack', permission: [ 'dashboard' ] },
+      //   redirect: '/other/icon-selector',
+      //   children: [
+      //     {
+      //       path: '/other/icon-selector',
+      //       name: 'TestIconSelect',
+      //       component: () => import('@/views/other/IconSelectorView'),
+      //       meta: { title: 'IconSelector', keepAlive: true, permission: [ 'dashboard' ] }
+      //     }
+      //   ]
+      // }
     ]
   },
   {

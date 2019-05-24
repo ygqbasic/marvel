@@ -154,17 +154,23 @@
           <a-card :hoverable="true">
             <a-card-meta>
               <div style="margin-bottom: 3px" slot="title">{{ item.AppName }}</div>
-              <a-avatar class="card-avatar" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" size="large"/>
+              <a-avatar class="card-avatar" slot="avatar" src="/app.png" size="large"/>
               <div class="meta-content" slot="description">
-                所属集群 {{ item.ClusterName }} 环境 {{ item.Entname }} <br />
-                容器数 {{ item.ContainerNumber }} &nbsp;&nbsp; 服务数： {{ item.ServiceNumber - item.ServiceFail }} / {{ item.ServiceNumber }} <br />
-                状态 {{ item.Status }} &nbsp;&nbsp; 创建时间 {{ item.CreateTime }}
+                <a-row>
+                  <a-col :span="14"><a>{{ item.ClusterName }}</a></a-col>
+                  <a-col :span="10">
+                    {{ item.Entname }}
+                  </a-col>
+                </a-row>
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
               <a @click="showDetail(item)">查看</a>
               <a type="danger">删除</a>
             </template>
+            <div class="">
+              <app-card-info :container-num="item.ContainerNumber" :service-num="(item.ServiceNumber - item.ServiceFail)+'/'+item.ServiceNumber" :status-str="item.Status" :create-time="item.CreateTime"></app-card-info>
+            </div>
           </a-card>
         </template>
       </a-list-item>
@@ -174,9 +180,12 @@
 
 <script>
 import { getAppList } from '@/api/application'
-
+import AppCardInfo from './components/AppCardInfo'
 export default {
-  name: 'ClusterList',
+  name: 'AppList',
+  components: {
+    AppCardInfo
+  },
   data () {
     return {
       // description: '段落示意：蚂蚁金服务设计平台 ant.design，用最小的工作量，无缝接入蚂蚁金服生态， 提供跨越设计与开发的体验解决方案。',
@@ -260,7 +269,7 @@ export default {
     background-color: #fff;
     border-radius: 2px;
     width: 100%;
-    height: 188px;
+    height: 217px;
   }
 
   .meta-content {
@@ -268,7 +277,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    height: 64px;
+    // height: 64px;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }

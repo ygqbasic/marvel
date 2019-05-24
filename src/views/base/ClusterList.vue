@@ -1,7 +1,7 @@
 <template>
   <div class="card-list" ref="content">
     <a-list
-      :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
+      :grid="{gutter: 24, lg: 4, md: 2, sm: 1, xs: 1}"
       :dataSource="dataSource"
     >
       <a-list-item slot="renderItem" slot-scope="item">
@@ -156,17 +156,34 @@
           <a-card :hoverable="true">
             <a-card-meta>
               <div style="margin-bottom: 3px" slot="title">{{ item.ClusterAlias }}</div>
-              <a-avatar class="card-avatar" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" size="large"/>
+              <a-avatar class="card-avatar" slot="avatar" src="/clusterlogo.png" size="large"/>
               <div class="meta-content" slot="description">
-                名称 {{ item.ClusterName }} 类型 {{ item.ClusterType }} <br />
-                节点数： {{ item.Nodes }} &nbsp;&nbsp; 服务数： {{ item.Nodes }} <br />
-                CPU： {{ item.CpuNum }} &nbsp;&nbsp; 内存： {{ item.MemSize }}
+                <a-row>
+                  <a-col :span="14"><a>{{ item.ClusterName }}</a></a-col>
+                  <a-col :span="10">
+                    {{ item.ClusterType }}
+                    <a-tooltip trigger="hover" placement="right">
+                      <template slot="title">
+                        <div style="color:lightgray;font-size:12px">
+                          <p><span style="color:white;font-size:12px">Standard：</span>基于开源Kubernetes构建</p>
+                          <p><span style="color:white;font-size:12px">AKS：</span>基于Azure PaaS Kubernetes构建</p>
+                          <p><span style="color:red;font-size:12px">ACK：</span>基于阿里云 PaaS Kubernetes构建</p>
+                          <p><span style="color:red;font-size:12px">TCE：</span>基于腾讯云 PaaS Kubernetes构建</p>
+                        </div>
+                      </template>
+                      <a-icon type="question-circle" ></a-icon>
+                    </a-tooltip>
+                  </a-col>
+                </a-row>
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
               <a @click="showDetail(item)">查看</a>
               <a type="danger">删除</a>
             </template>
+            <div class="">
+              <cluster-card-info :node-num="item.Nodes" :service-num="item.Services" :cpu-num="item.CpuNum" :mem-num="item.MemSize"></cluster-card-info>
+            </div>
           </a-card>
         </template>
       </a-list-item>
@@ -176,7 +193,7 @@
 
 <script>
 import { getClusterList } from '@/api/cluster'
-
+import ClusterCardInfo from './components/ClusterCardInfo'
 const dataSource = []
 dataSource.push(null)
 getClusterList()
@@ -190,6 +207,9 @@ getClusterList()
 
 export default {
   name: 'ClusterList',
+  components: {
+    ClusterCardInfo
+  },
   data () {
     return {
       // description: '段落示意：蚂蚁金服务设计平台 ant.design，用最小的工作量，无缝接入蚂蚁金服生态， 提供跨越设计与开发的体验解决方案。',
@@ -254,7 +274,7 @@ export default {
     background-color: #fff;
     border-radius: 2px;
     width: 100%;
-    height: 188px;
+    height: 217px;
   }
 
   .meta-content {
@@ -262,7 +282,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    height: 64px;
+    // height: 64px;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }

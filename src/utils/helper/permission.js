@@ -20,6 +20,8 @@ function plugin (Vue) {
       get () {
         const _this = this
         return (permissions) => {
+          console.log('permissions:')
+          console.log(permissions)
           const [permission, action] = permissions.split('.')
           const permissionList = _this.$store.getters.roles.permissions
           permissionList.find((val) => {
