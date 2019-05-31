@@ -80,25 +80,31 @@ export const asyncRouterMap = [
         path: '/form',
         redirect: '/form/base-form',
         component: PageView,
-        meta: { title: '集成', icon: 'interation', permission: [ 'dashboard' ] },
+        meta: { title: '持续集成', icon: 'interation', permission: [ 'dashboard' ] },
         children: [
           {
             path: '/form/step-form',
             name: 'StepForm',
             component: () => import('@/views/form/stepForm/StepForm'),
-            meta: { title: '应用发布', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '构建项目', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
             path: '/form/base-form',
             name: 'BaseForm',
             component: () => import('@/views/form/BasicForm'),
-            meta: { title: '基础表单', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '构建历史', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
             path: '/form/advanced-form',
             name: 'AdvanceForm',
             component: () => import('@/views/form/advancedForm/AdvancedForm'),
-            meta: { title: '高级表单', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: '流水线', keepAlive: true, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/form/advanced-form',
+            name: 'AdvanceForm',
+            component: () => import('@/views/form/advancedForm/AdvancedForm'),
+            meta: { title: '批量部署', keepAlive: true, permission: [ 'dashboard' ] }
           }
         ]
       },
@@ -194,29 +200,52 @@ export const asyncRouterMap = [
             meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
+      },
+      // authcenter
+      {
+        path: '/auth',
+        name: 'auth',
+        component: PageView,
+        redirect: '/auth/tenants',
+        meta: { title: '授权中心', icon: 'profile', permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/auth/tenants',
+            name: 'tenants',
+            component: () => import('@/views/authcenter/TenantList'),
+            meta: { title: '租户管理', permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/profile/advanced',
+            name: 'ProfileAdvanced',
+            component: () => import('@/views/profile/advanced/Advanced'),
+            meta: { title: '账号管理', permission: [ 'dashboard' ] }
+          }
+        ]
       }
+      // ,
       // // profile
       // {
       //   path: '/profile',
       //   name: 'profile',
       //   component: RouteView,
       //   redirect: '/profile/basic',
-      //   meta: { title: '详情页', icon: 'profile', permission: [ 'dashboard' ] },
+      //   meta: { title: '授权中心', icon: 'profile', permission: [ 'dashboard' ] },
       //   children: [
       //     {
       //       path: '/profile/basic',
       //       name: 'ProfileBasic',
       //       component: () => import('@/views/profile/basic/Index'),
-      //       meta: { title: '基础详情页', permission: [ 'dashboard' ] }
+      //       meta: { title: '租户管理', permission: [ 'dashboard' ] }
       //     },
       //     {
       //       path: '/profile/advanced',
       //       name: 'ProfileAdvanced',
       //       component: () => import('@/views/profile/advanced/Advanced'),
-      //       meta: { title: '高级详情页', permission: [ 'dashboard' ] }
+      //       meta: { title: '账号管理', permission: [ 'dashboard' ] }
       //     }
       //   ]
-      // },
+      // }
       // // result
       // {
       //   path: '/result',

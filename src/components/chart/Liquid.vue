@@ -13,7 +13,7 @@
         position="transfer*value"
         :color="color"
         :v-style="{
-          lineWidth: 2,
+          lineWidth: 1,
           opacity: 0.75
         }"
         :tooltip="[

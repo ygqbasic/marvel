@@ -2,7 +2,7 @@
   <div>
     <a-form style="margin: 40px auto 0;">
       <a-row :gutter="16">
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item
             label="环境选择"
             :labelCol="{span: 6}"
@@ -20,7 +20,7 @@
             </a-select>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item
             label="所属集群"
             :labelCol="{span: 6}"

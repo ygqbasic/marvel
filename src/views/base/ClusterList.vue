@@ -159,8 +159,8 @@
               <a-avatar class="card-avatar" slot="avatar" src="/clusterlogo.png" size="large"/>
               <div class="meta-content" slot="description">
                 <a-row>
-                  <a-col :span="14"><a>{{ item.ClusterName }}</a></a-col>
-                  <a-col :span="10">
+                  <a-col :span="12"><a>{{ item.ClusterName }}</a></a-col>
+                  <a-col :span="12">
                     {{ item.ClusterType }}
                     <a-tooltip trigger="hover" placement="right">
                       <template slot="title">
