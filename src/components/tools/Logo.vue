@@ -29,3 +29,8 @@ export default {
   }
 }
 </script>
+<style lang="less" scoped>
+// .logo h1{
+//   font-family: STXingkai !important;
+// }
+</style>

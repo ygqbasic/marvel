@@ -77,34 +77,34 @@ export const asyncRouterMap = [
       },
       // forms
       {
-        path: '/form',
-        redirect: '/form/base-form',
+        path: '/ci',
+        redirect: '/ci/base-form',
         component: PageView,
         meta: { title: '持续集成', icon: 'interation', permission: [ 'dashboard' ] },
         children: [
           {
-            path: '/form/step-form',
+            path: '/ci/step-form',
             name: 'StepForm',
-            component: () => import('@/views/form/stepForm/StepForm'),
+            component: () => import('@/views/ci/stepForm/StepForm'),
             meta: { title: '构建项目', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/form/base-form',
+            path: '/ci/base-form',
             name: 'BaseForm',
-            component: () => import('@/views/form/BasicForm'),
+            component: () => import('@/views/ci/BasicForm'),
             meta: { title: '构建历史', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/form/advanced-form',
+            path: '/ci/advanced-form',
             name: 'AdvanceForm',
-            component: () => import('@/views/form/advancedForm/AdvancedForm'),
+            component: () => import('@/views/ci/advancedForm/AdvancedForm'),
             meta: { title: '流水线', keepAlive: true, permission: [ 'dashboard' ] }
           },
           {
-            path: '/form/advanced-form',
-            name: 'AdvanceForm',
-            component: () => import('@/views/form/advancedForm/AdvancedForm'),
-            meta: { title: '批量部署', keepAlive: true, permission: [ 'dashboard' ] }
+            path: '/ci/CodeList',
+            name: 'CodeList',
+            component: () => import('@/views/ci/CodeList'),
+            meta: { title: '代码仓库', keepAlive: true, permission: [ 'dashboard' ] }
           }
         ]
       },
