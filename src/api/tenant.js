@@ -11,6 +11,13 @@ export default {
       method: 'get'
     })
   },
+  AllTenantList () {
+    const url = `/auth/tenant/alllist`
+    return axios({
+      url: url,
+      method: 'get'
+    })
+  },
   AddTenant (args) {
     return axios({
       url: '/auth/tenant/newtenant',

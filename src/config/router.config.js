@@ -129,13 +129,13 @@ export const asyncRouterMap = [
             hiddenHeaderContent: true,
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
             component: () => import('@/views/base/TableList'),
-            meta: { title: '证书管理', keepAlive: false, permission: [ 'dashboard' ] }
+            meta: { title: '证书管理', permission: [ 'dashboard' ] }
           },
           {
             hiddenHeaderContent: true,
-            path: '/base/basic-list',
-            name: 'BasicList',
-            component: () => import('@/views/base/StandardList'),
+            path: '/base/quota-list',
+            name: 'QuotaList',
+            component: () => import('@/views/resourse/QuotaList'),
             meta: { title: '资源配置', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
@@ -198,6 +198,13 @@ export const asyncRouterMap = [
             hidden: true,
             component: () => import('@/views/application/app/AppDetail'),
             meta: { title: '应用详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            hiddenHeaderContent: true,
+            path: '/base/quota-view',
+            name: 'QuotaView',
+            component: () => import('@/views/resourse/QuotaView'),
+            meta: { title: '资源详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },

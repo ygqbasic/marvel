@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-chart
-      :forceFit="true"
+      :forceFit="forceFit"
       :height="height"
       :width="width"
       :data="data"
@@ -50,6 +50,10 @@
 export default {
   name: 'Liquid',
   props: {
+    forceFit: {
+      type: Boolean,
+      default: true
+    },
     height: {
       type: Number,
       default: 0
