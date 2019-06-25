@@ -3,12 +3,10 @@
     <!-- actions -->
     <template slot="action">
       <a-button-group style="margin-right: 4px;">
-        <a-button>启动</a-button>
-        <a-button>停止</a-button>
-        <a-button>重启</a-button>
-        <!-- <a-button><a-icon type="ellipsis"/></a-button> -->
+        <a-button icon="caret-right">启动</a-button>
+        <a-button icon="pause-circle">停止</a-button>
+        <a-button icon="thunderbolt">重启</a-button>
       </a-button-group>
-      <!-- <a-button type="primary" >主操作</a-button> -->
     </template>
 
     <!-- 操作 -->
@@ -36,32 +34,465 @@
       </a-table>
       <div v-if="activeTabKey === '2'">
         <template>
-          <a-textarea placeholder="伸缩" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="当前实例"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="扩展到"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-slider :defaultValue="2" :max="10" :min="1">
+                  </a-slider></a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
       <div v-if="activeTabKey === '3'">
         <template>
-          <a-textarea placeholder="配置" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="实例配置"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }"
+                >
+                  <a-radio-group v-model="instanceConfig" buttonStyle="solid">
+                    <a-radio-button :value="item.id" v-for="item in instanceConfigArra" :key="item.id">{{ item.title }}-{{ item.cpu }}Core/{{ item.mem }}G</a-radio-button>
+                  </a-radio-group>
+                  <a-row v-if="instanceConfig==='g'">
+                    <a-col :span="4">CPU使用量:</a-col>
+                    <a-col :span="5"><a-input v-model="gCpu" /></a-col>
+                    <a-col :span="2" style="padding-left:1%">核</a-col>
+                  </a-row>
+                  <a-row v-if="instanceConfig==='g'">
+                    <a-col :span="4">服务内存使用量:</a-col>
+                    <a-col :span="5"><a-input v-model="gMem" /></a-col>
+                    <a-col :span="2" style="padding-left:1%">M</a-col>
+                  </a-row>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
       <div v-if="activeTabKey === '4'">
         <template>
-          <a-textarea placeholder="升级" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="当前镜像"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="升级到版本"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="版本选择"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-select showSearch allowClear>
+                    <a-select-option value="test-456987">test-456987</a-select-option>
+                    <a-select-option value="test-879654">test-879654</a-select-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="升级间隔"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
       <div v-if="activeTabKey === '5'">
         <template>
-          <a-textarea placeholder="配置" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="环境变量"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-textarea placeholder="环境变量" :rows="8"/>
+                  </a-textarea></a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
       <div v-if="activeTabKey === '6'">
         <template>
-          <a-textarea placeholder="健康检查" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="hostNetwork"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-checkbox></a-checkbox>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="容器暴露端口"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <div>
+                    <template v-for="(port, index) in ports">
+                      <a-tooltip v-if="port.length > 20" :key="port" :title="port">
+                        <a-tag :key="port" :closable="index !== -1" :afterClose="() => handleClose(port)" color="blue">
+                          {{ `${port.slice(0, 20)}...` }}
+                        </a-tag>
+                      </a-tooltip>
+                      <a-tag v-else :key="port" :closable="index !== -1" :afterClose="() => handleClose(port)" color="blue">
+                        {{ port }}
+                      </a-tag>
+                    </template>
+                    <a-input
+                      v-if="inputVisible"
+                      ref="input"
+                      type="text"
+                      size="small"
+                      :style="{ width: '78px' }"
+                      :value="inputValue"
+                      @change="handleInputChange"
+                      @blur="handleInputConfirm"
+                      @keyup.enter="handleInputConfirm"
+                    />
+                    <a-tag v-else @click="showInput" style="background: #fff; borderStyle: dashed;">
+                      <a-icon type="plus" /> New Port
+                    </a-tag>
+                  </div>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
       <div v-if="activeTabKey === '7'">
         <template>
-          <a-textarea placeholder="日志" style="border: none;background-color: #333;width: 100%;color: #F0F0F0;overflow-y: scroll" :rows="20"/>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="检查类型"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }"
+                >
+                  <a-radio-group buttonStyle="solid" v-model="healthType">
+                    <a-radio-button value="HTTP">HTTP</a-radio-button>
+                    <a-radio-button value="TCP">TCP</a-radio-button>
+                    <a-radio-button value="CMD">CMD</a-radio-button>
+                  </a-radio-group>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="端口"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }"
+                  v-if="healthType==='HTTP' || healthType==='TCP'"
+                >
+                  <a-input v-model="healthPort"/>
+                </a-form-item>
+                <a-form-item
+                  label="健康检查命令"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }"
+                  v-else
+                >
+                  <a-input v-model="healthCmd"/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24" v-if="healthType==='HTTP'">
+              <a-col :span="20">
+                <a-form-item
+                  label="页面路径"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input v-model="healthPath"/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="首次检查延时"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input
+                    addonAfter="秒"
+                    v-model="healthInitialDelay"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="间隔"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input
+                    addonAfter="秒"
+                    v-model="healthInterval"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="失败次数阈值"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input
+                    addonAfter="次"
+                    v-model="healthFaliureThreshold"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="超时"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input
+                    addonAfter="秒"
+                    v-model="healthTimeout"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
+        </template>
+      </div>
+      <div v-if="activeTabKey === '8'">
+        <template>
+          <a-form :form="form" hideRequiredMark>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="集群名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item
+                  label="服务名称"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-input/>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
+                <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
+                  <a-button type="primary" html-type="submit">
+                    保存
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
         </template>
       </div>
     </a-card>
@@ -151,53 +582,28 @@ export default {
           },
           {
             key: '5',
-            title: '配置'
+            title: '变量'
           },
           {
             key: '6',
-            title: '健康检查'
+            title: '端口'
           },
           {
             key: '7',
-            title: '日志'
+            title: '健康检查'
+          },
+          {
+            key: '8',
+            title: '日志路径'
           }
         ],
         active: () => {
           console.log('激活tab' + this.activeTabKey)
           return this.activeTabKey
-          // switch (this.$route.path) {
-          //   case '/application/service/servicedetail/22':
-          //     return '1'
-          //   case '/list/search/project':
-          //     return '2'
-          //   case '/list/search/application':
-          //     return '3'
-          //   default:
-          //     return '1'
-          // }
         },
         callback: (key) => {
           console.log('点击tab：' + key)
           this.activeTabKey = key
-          // switch (key) {
-          //   case '1':
-          //     this.activeTabKey = 1
-          //     break
-          //   case '2':
-          //     this.activeTabKey = 2
-          //     break
-          //   case '3':
-          //     this.activeTabKey = 3
-          //   case '4':
-          //     this.activeTabKey = 3
-          //   case '5':
-          //     this.activeTabKey = 3
-          //   case '6':
-          //     this.activeTabKey = 3
-          //     break
-          //   default:
-          //     this.activeTabKey = 1
-          // }
         }
       },
       clusterName: name,
@@ -247,7 +653,43 @@ export default {
           key: 'ContainerId',
           scopedSlots: { customRender: 'containerId' }
         }
-      ]
+      ],
+      form: this.$form.createForm(this),
+
+      // 配置
+      instanceConfig: 'a',
+      instanceConfigArra: [
+        { id: 'a', title: 'S', cpu: 0.5, mem: 1 },
+        { id: 'b', title: 'M', cpu: 1, mem: 2 },
+        { id: 'c', title: 'L', cpu: 2, mem: 4 },
+        { id: 'd', title: 'XL', cpu: 2, mem: 8 },
+        { id: 'e', title: 'XXL', cpu: 4, mem: 8 },
+        { id: 'f', title: 'XXXL', cpu: 4, mem: 16 },
+        { id: 'g', title: '自定义', cpu: 4, mem: 16 }
+      ],
+
+      gCpu: '',
+      gMem: '',
+
+      chooseCpu: '0.5',
+      chooseMem: '1024',
+
+      inputValue: '',
+      inputVisible: false,
+      ports: ['80'],
+
+      // 健康检查
+      healthType: 'HTTP',
+      healthPort: '80',
+      healthPath: '/healthz',
+      healthCmd: 'ls /tmp/',
+      healthInitialDelay: '100',
+      healthInterval: '60',
+      healthFaliureThreshold: '0',
+      healthTimeout: '20',
+
+      healthData: [],
+      healthDataInfo: {}
     }
   },
   filters: {
@@ -287,6 +729,31 @@ export default {
     clearInterval(this.timer)
   },
   methods: {
+    handleInputChange (e) {
+      this.inputValue = e.target.value
+    },
+    showInput () {
+      this.inputVisible = true
+      this.$nextTick(function () {
+        this.$refs.input.focus()
+      })
+    },
+    handleInputConfirm () {
+      const inputValue = this.inputValue
+      let ports = this.ports
+      if (inputValue && ports.indexOf(inputValue) === -1) {
+        ports = [...ports, inputValue]
+      }
+      Object.assign(this, {
+        ports,
+        inputVisible: false,
+        inputValue: ''
+      })
+    },
+    handleClose (removedTag) {
+      const ports = this.ports.filter(port => port !== removedTag)
+      this.ports = ports
+    },
     handleShowWebtty (id) {
       var that = this
       getWebttyInfo(id)
@@ -350,14 +817,6 @@ export default {
       ws.onclose = function () {
         console.log('ws closed ')
       }
-      // console.log(that.xterm.element.classList)
-      // Log the keyCode of every keyDown event
-      // xterm.textarea.onkeydown = function (e) {
-      //   console.log('User pressed key with keyCode: ', e.keyCode)
-      //   // console.log('编码',)
-      //   // ws.send(that.encodeBase64Content(e.keyCode.toString()));
-      //   // ws.send('bHM=');
-      // }
       that.xterm = new Terminal({
         cols: 20,
         rows: 40,
@@ -372,20 +831,6 @@ export default {
       that.xterm.fit()
       that.terminalSocket = ws
       that.xterm.attach(ws)
-      // that.xterm._initialized = true
-
-      // that.xterm.attachCustomKeyEventHandler(function (e) {
-      //   if (e.keyCode === 13) {
-      //     console.log('enter event send')
-      //     ws.send(that.encodeBase64Content(tempAction))
-      //     return false
-      //   }
-      // })
-      // that.xterm.on('data', function (data) {
-      //   console.log('data xterm=>', data)
-      //   // tempAction += data
-      //   // that.xterm.write(data)
-      // })
     },
     decodeBase64Content (base64Content) {
       // base64 解码

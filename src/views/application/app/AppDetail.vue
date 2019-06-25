@@ -39,14 +39,14 @@
         <a-col :xs="24" :sm="24" v-if="activeTabKey === '1'">
           <div>
             <a-button type="primary" icon="plus" @click="handleAddHost()">添加服务</a-button>
-            <a-button type="dashed" icon="caret-right" @click="handleAddHost()">启动</a-button>
+            <!-- <a-button type="dashed" icon="caret-right" @click="handleAddHost()">启动</a-button>
             <a-button type="dashed" icon="pause-circle" @click="handleAddHost()">停止</a-button>
             <a-button type="dashed" icon="thunderbolt" @click="handleAddHost()">重启</a-button>
             <a-button type="dashed" icon="share-alt" @click="handleAddHost()">伸缩</a-button>
             <a-button type="dashed" icon="setting" @click="handleAddHost()">配置</a-button>
             <a-button type="dashed" icon="rise" @click="handleAddHost()">升级</a-button>
             <a-button type="dashed" icon="plus" @click="handleAddHost()">修改端口</a-button>
-            <a-button type="dashed" icon="medicine-box" @click="handleAddHost()">健康检查</a-button>
+            <a-button type="dashed" icon="medicine-box" @click="handleAddHost()">健康检查</a-button> -->
           </div>
           <a-drawer
             title="添加主机"

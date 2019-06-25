@@ -64,14 +64,6 @@ export const asyncRouterMap = [
             name: 'configlist',
             component: () => import('@/views/application/config/ConfigList'),
             meta: { title: '应用配置', keepAlive: false, permission: [ 'dashboard' ] }
-          },
-          {
-            path: '/application/servicedetail/:id',
-            name: 'servicedetail',
-            // component: () => import('@/views/application/service/ServiceDetailLayout'),
-            hidden: true,
-            component: () => import('@/views/application/service/ServiceDetail'),
-            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
@@ -205,6 +197,13 @@ export const asyncRouterMap = [
             name: 'QuotaView',
             component: () => import('@/views/resourse/QuotaView'),
             meta: { title: '资源详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/servicedetail/:id',
+            name: 'servicedetail',
+            hidden: true,
+            component: () => import('@/views/application/service/ServiceDetail'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
