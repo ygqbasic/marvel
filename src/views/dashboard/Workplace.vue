@@ -30,21 +30,24 @@
             :body-style="{ padding: 0 }">
             <a slot="extra">全部集群</a>
             <div>
-              <a-card-grid class="project-card-grid" :key="i" v-for="(item, i) in projects">
+              <a-card-grid class="project-card-grid" v-for="item in clusterData" :key="item.ClusterId">
                 <a-card :bordered="false" :body-style="{ padding: 0 }">
                   <a-card-meta>
                     <div slot="title" class="card-title">
-                      <a-avatar size="small" :src="item.cover"/>
-                      <a>{{ item.title }}</a>
+                      <a>{{ item.ClusterAlias }}</a>
                     </div>
                     <div slot="description" class="card-description">
-                      {{ item.description }}
+                      <div>集群类型:&nbsp;{{ item.ClusterType }}</div>
+                      <div class="card-description-service">
+                        <span>节点数:&nbsp;{{ item.Nodes }}</span>
+                        <span>服务数:&nbsp;{{ item.Services }}</span>
+                      </div>
+                      <div class="card-description-service">
+                        <span>cpu:&nbsp;{{ item.CpuNum }}(核)</span>
+                        <span>内存:&nbsp;{{ item.MemSize }}G</span>
+                      </div>
                     </div>
                   </a-card-meta>
-                  <div class="project-item">
-                    <a href="/#/">科学搬砖组</a>
-                    <span class="datetime">9小时前</span>
-                  </div>
                 </a-card>
               </a-card-grid>
             </div>
@@ -52,16 +55,16 @@
 
           <a-card :loading="loading" title="动态" :bordered="false">
             <a-list>
-              <a-list-item :key="index" v-for="(item, index) in activities">
+              <a-list-item>
                 <a-list-item-meta>
-                  <a-avatar slot="avatar" :src="item.user.avatar" />
+                  <a-avatar slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" />
                   <div slot="title">
-                    <span>{{ item.user.nickname }}</span>&nbsp;
-                    在&nbsp;<a href="#">{{ item.project.name }}</a>&nbsp;
-                    <span>{{ item.project.action }}</span>&nbsp;
-                    <a href="#">{{ item.project.event }}</a>
+                    <span>admin</span>&nbsp;
+                    在&nbsp;<a href="#">测试</a>&nbsp;
+                    <span>修改</span>&nbsp;
+                    <a href="#">集群</a>
                   </div>
-                  <div slot="description">{{ item.time }}</div>
+                  <div slot="description">2018-05-12</div>
                 </a-list-item-meta>
               </a-list-item>
             </a-list>
@@ -86,19 +89,13 @@
               <a-button size="small" type="primary" ghost icon="plus">添加</a-button>
             </div>
           </a-card>
-          <a-card title="XX 指数" style="margin-bottom: 24px" :loading="radarLoading" :bordered="false" :body-style="{ padding: 0 }">
-            <div style="min-height: 400px;">
-              <!-- :scale="scale" :axis1Opts="axis1Opts" :axis2Opts="axis2Opts"  -->
-              <radar :data="radarData" />
-            </div>
-          </a-card>
           <a-card :loading="loading" title="团队" :bordered="false">
             <div class="members">
               <a-row>
-                <a-col :span="12" v-for="(item, index) in teams" :key="index">
+                <a-col :span="12">
                   <a>
-                    <a-avatar size="small" :src="item.avatar" />
-                    <span class="member">{{ item.name }}</span>
+                    <a-avatar size="small" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png" />
+                    <span class="member">天正</span>
                   </a>
                 </a-col>
               </a-row>
@@ -117,10 +114,7 @@ import { mapGetters } from 'vuex'
 import PageLayout from '@/components/page/PageLayout'
 import HeadInfo from '@/components/tools/HeadInfo'
 import Radar from '@/components/chart/Radar'
-
-import { getRoleList, getServiceList } from '@/api/manage'
-
-const DataSet = require('@antv/data-set')
+import { getClusterList } from '@/api/cluster.js'
 
 export default {
   name: 'Workplace',
@@ -134,50 +128,8 @@ export default {
       timeFix: timeFix(),
       avatar: '',
       user: {},
-
-      projects: [],
       loading: true,
-      radarLoading: true,
-      activities: [],
-      teams: [],
-
-      // data
-      axis1Opts: {
-        dataKey: 'item',
-        line: null,
-        tickLine: null,
-        grid: {
-          lineStyle: {
-            lineDash: null
-          },
-          hideFirstLine: false
-        }
-      },
-      axis2Opts: {
-        dataKey: 'score',
-        line: null,
-        tickLine: null,
-        grid: {
-          type: 'polygon',
-          lineStyle: {
-            lineDash: null
-          }
-        }
-      },
-      scale: [{
-        dataKey: 'score',
-        min: 0,
-        max: 80
-      }],
-      axisData: [
-        { item: '引用', a: 70, b: 30, c: 40 },
-        { item: '口碑', a: 60, b: 70, c: 40 },
-        { item: '产量', a: 50, b: 60, c: 40 },
-        { item: '贡献', a: 40, b: 50, c: 40 },
-        { item: '热度', a: 60, b: 70, c: 40 },
-        { item: '引用', a: 70, b: 50, c: 40 }
-      ],
-      radarData: []
+      clusterData: []
     }
   },
   computed: {
@@ -186,60 +138,23 @@ export default {
     }
   },
   created () {
-    this.user = this.userInfo
-    this.avatar = this.userInfo.avatar
-
-    getRoleList().then(res => {
-      console.log('workplace -> call getRoleList()', res)
-    })
-
-    getServiceList().then(res => {
-      console.log('workplace -> call getServiceList()', res)
-    })
+    const self = this
+    self.user = self.userInfo
+    self.avatar = self.userInfo.avatar
+    self.queryClusterList()
   },
   mounted () {
-    this.getProjects()
-    this.getActivity()
-    this.getTeams()
-    this.initRadar()
   },
   methods: {
     ...mapGetters(['nickname', 'welcome']),
-    getProjects () {
-      this.$http.get('/list/search/projects')
-        .then(res => {
-          this.projects = res.result && res.result.data
-          this.loading = false
-        })
-    },
-    getActivity () {
-      this.$http.get('/workplace/activity')
-        .then(res => {
-          this.activities = res.result
-        })
-    },
-    getTeams () {
-      this.$http.get('/workplace/teams')
-        .then(res => {
-          this.teams = res.result
-        })
-    },
-    initRadar () {
-      this.radarLoading = true
-
-      this.$http.get('/workplace/radar')
-        .then(res => {
-          const dv = new DataSet.View().source(res.result)
-          dv.transform({
-            type: 'fold',
-            fields: ['个人', '团队', '部门'],
-            key: 'user',
-            value: 'score'
-          })
-
-          this.radarData = dv.rows
-          this.radarLoading = false
-        })
+    queryClusterList () {
+      const self = this
+      getClusterList().then(res => {
+        if (res.status === 200) {
+          self.clusterData = [...res.result]
+          self.loading = false
+        }
+      })
     }
   }
 }
@@ -267,7 +182,6 @@ export default {
     }
     .card-description {
       color: rgba(0, 0, 0, 0.45);
-      height: 44px;
       line-height: 22px;
       overflow: hidden;
     }
@@ -357,4 +271,14 @@ export default {
     }
   }
 
+</style>
+<style scoped>
+.card-description {
+  display:flex;
+  flex-direction: column;
+}
+.card-description-service{
+  display:flex;
+  justify-content: space-between;
+}
 </style>
