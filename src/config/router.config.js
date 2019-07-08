@@ -204,6 +204,20 @@ export const asyncRouterMap = [
             hidden: true,
             component: () => import('@/views/application/service/ServiceDetail'),
             meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/auth/tenants/clients',
+            name: 'clients',
+            hidden: true,
+            component: () => import('@/views/authcenter/TenantClientList'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/auth/tenants/accounts',
+            name: 'accounts',
+            hidden: true,
+            component: () => import('@/views/authcenter/TenantAccountList'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
