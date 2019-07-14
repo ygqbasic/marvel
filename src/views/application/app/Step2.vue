@@ -6,7 +6,8 @@
         :labelCol="{span: 5}"
         :wrapperCol="{span: 19}"
       >
-        <a-input v-model="appName" @blur="checkName" />
+        <a-input v-model="appName" @blur="checkName" v-if="addServiceOnly" disabled />
+        <a-input v-model="appName" @blur="checkName" v-else />
       </a-form-item>
       <a-form-item
         label="服务名称"
@@ -157,7 +158,9 @@ export default {
       chooseCpu: '0.5',
       chooseMem: '1024',
 
-      basicDataInfo: {}
+      basicDataInfo: {},
+
+      addServiceOnly: false
     }
   },
   created () {
@@ -182,6 +185,10 @@ export default {
       if (self.imageTagArra.length > 0) {
         self.imageTag = self.imageTagArra[0]
       }
+      if (self.flowDataInfo.step1.routeAppName) {
+        self.appName = self.flowDataInfo.step1.routeAppName
+        self.addServiceOnly = true
+      }
     }
   },
   methods: {
@@ -196,7 +203,6 @@ export default {
         })
     },
     checkName () {
-      // var self = this
       serviceFetch.QueryServiceByName('', 'DevCluster', 'demo17')
         .then(res => {
           console.log(res)
@@ -217,10 +223,6 @@ export default {
           'ServiceLablesData': self.serviceLabels,
           'Version': self.imageTag
         }
-        // var tempObj = {
-        //   'step1': self.flowDataInfo.step1,
-        //   'step2': self.basicDataInfo
-        // }
         var outputObjJson = self.preDataInfo
         outputObjJson['step2'] = self.basicDataInfo
         self.$emit('nextStep', outputObjJson)

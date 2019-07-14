@@ -37,89 +37,9 @@
     >
       <a-row>
         <a-col :xs="24" :sm="24" v-if="activeTabKey === '1'">
-          <div>
-            <a-button type="primary" icon="plus" @click="handleAddHost()">添加服务</a-button>
-            <!-- <a-button type="dashed" icon="caret-right" @click="handleAddHost()">启动</a-button>
-            <a-button type="dashed" icon="pause-circle" @click="handleAddHost()">停止</a-button>
-            <a-button type="dashed" icon="thunderbolt" @click="handleAddHost()">重启</a-button>
-            <a-button type="dashed" icon="share-alt" @click="handleAddHost()">伸缩</a-button>
-            <a-button type="dashed" icon="setting" @click="handleAddHost()">配置</a-button>
-            <a-button type="dashed" icon="rise" @click="handleAddHost()">升级</a-button>
-            <a-button type="dashed" icon="plus" @click="handleAddHost()">修改端口</a-button>
-            <a-button type="dashed" icon="medicine-box" @click="handleAddHost()">健康检查</a-button> -->
+          <div style="margin-bottom:10px;">
+            <a-button type="primary" icon="plus" @click="addServiceHandler()">添加服务</a-button>
           </div>
-          <a-drawer
-            title="添加主机"
-            :width="720"
-            @close="onAddHostPanelClose"
-            :maskClosable="false"
-            :visible="showAddHostPanel"
-            :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
-          >
-            <a-form :form="form" layout="vertical" >
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="群集">
-                    <a-input
-                      disabled
-                      v-decorator="['clusterName', {
-                        rules: [{ required: true, message: '请输入群集名称' }],
-                        initialValue: clusterName
-                      }]"
-                      placeholder="必须为全英文"
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="主机IP">
-                    <a-input
-                      v-decorator="['hostip', {
-                        rules: [{ required: true, message: '请输入主机名' }]
-                      }]"
-                      placeholder="主机IP"
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="12">
-                <a-col :span="24">
-                  <a-form-item label="主机类型">
-                    <a-select
-                      v-decorator="['hosttype', {
-                        rules: [{ required: true, message: '请选择主机类型' }]
-                      }]"
-                      placeholder="请选择群集类型"
-                    >
-                      <a-select-option key="master" value="master">master</a-select-option>
-                      <a-select-option key="slave" value="slave">slave</a-select-option>
-                    </a-select>
-                  </a-form-item>
-                </a-col>
-              </a-row>
-            </a-form>
-            <div
-              :style="{
-                position: 'absolute',
-                left: 0,
-                bottom: 0,
-                width: '100%',
-                borderTop: '1px solid #e9e9e9',
-                padding: '10px 16px',
-                background: '#fff',
-                textAlign: 'right',
-              }"
-            >
-              <a-button
-                :style="{marginRight: '8px'}"
-                @click="onAddHostPanelClose"
-              >
-                Cancel
-              </a-button>
-              <a-button @click="onAddHostPanelClose" type="primary">Submit</a-button>
-            </div>
-          </a-drawer>
           <!-- 服务列表 -->
           <a-table
             rowKey="ServiceId"
@@ -183,8 +103,6 @@ import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getAppDetail, getAppServices } from '@/api/application'
-import { clearInterval } from 'timers'
-
 const DetailListItem = DetailList.Item
 
 export default {
@@ -321,14 +239,14 @@ export default {
     }
   },
   created () {
-    console.log('222')
     this.getAppDetail()
   },
   mounted () {
     console.log(this.$route.params.name)
     this.$nextTick(() => { this.showChart = true })
     if (this.timer) {
-      clearInterval(this.timer)
+      window.clearInterval(this.timer)
+      this.timer = null
     } else {
       this.timer = setInterval(() => {
         this.getAppDetail()
@@ -336,14 +254,12 @@ export default {
     }
   },
   destroyed () {
-    clearInterval(this.timer)
+    window.clearInterval(this.timer)
+    this.timer = null
   },
   methods: {
     goServiceDetail (sid) {
       this.$router.push(`/application/servicedetail/${sid}`)
-    },
-    handleAddHost () {
-      this.showAddHostPanel = true
     },
     onAddHostPanelClose () {
       this.showAddHostPanel = false
@@ -353,8 +269,6 @@ export default {
       getAppDetail(this.$route.params.id)
         .then(res => {
           var info = res.result
-          console.log('获取应用详情')
-          console.log(info)
           if (info) {
             that.appDetail = info
             this.getAppServices()
@@ -369,6 +283,17 @@ export default {
           console.log(`serviceList:${info}`)
           that.serviceList = info
         })
+    },
+    addServiceHandler () {
+      const self = this
+      self.$router.push({
+        name: 'appadd',
+        params: {
+          appName: self.appDetail.AppName,
+          clusterName: self.appDetail.ClusterName,
+          entname: self.appDetail.Entname
+        }
+      })
     }
 
   }

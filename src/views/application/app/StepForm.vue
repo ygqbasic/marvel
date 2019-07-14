@@ -108,7 +108,16 @@ export default {
       serviceFetch.addService(serviceObj)
         .then(res => {
           if (res.status) {
+            self.$notification['success']({
+              message: '成功通知',
+              description: '服务创建成功'
+            })
             self.$router.push('/application/app')
+          } else {
+            self.$notification['error']({
+              message: '错误通知',
+              description: res.message
+            })
           }
         })
     }
