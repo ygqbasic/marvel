@@ -62,12 +62,12 @@
         </a-radio-group>
         <a-row v-if="instanceConfig==='g'">
           <a-col :span="3">CPU使用量:</a-col>
-          <a-col :span="5"><a-input v-model="gCpu" /></a-col>
+          <a-col :span="5"><a-input v-model="chooseCpu" /></a-col>
           <a-col :span="2" style="padding-left:1%">核</a-col>
         </a-row>
         <a-row v-if="instanceConfig==='g'">
           <a-col :span="3">服务内存使用量:</a-col>
-          <a-col :span="5"><a-input v-model="gMem" /></a-col>
+          <a-col :span="5"><a-input v-model="chooseMem" /></a-col>
           <a-col :span="2" style="padding-left:1%">M</a-col>
         </a-row>
       </a-form-item>
@@ -143,7 +143,7 @@ export default {
       deployType: '',
 
       instanceConfigArra: [
-        { id: 'a', title: 'S', cpu: 0.5, mem: 1 },
+        { id: 'a', title: 'S', cpu: 1, mem: 1 },
         { id: 'b', title: 'M', cpu: 1, mem: 2 },
         { id: 'c', title: 'L', cpu: 2, mem: 4 },
         { id: 'd', title: 'XL', cpu: 2, mem: 8 },
@@ -155,7 +155,7 @@ export default {
       gCpu: '',
       gMem: '',
 
-      chooseCpu: '0.5',
+      chooseCpu: '1',
       chooseMem: '1024',
 
       basicDataInfo: {},

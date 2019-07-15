@@ -41,7 +41,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -51,7 +51,7 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -61,7 +61,7 @@
                   label="当前实例"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="replicas"/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -71,7 +71,7 @@
                   label="扩展到"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-slider :defaultValue="2" :max="10" :min="1">
+                  <a-slider v-model="replicas" :defaultValue="replicas" :max="replicasMax" :min="replicasMin">
                   </a-slider></a-form-item>
               </a-col>
             </a-row>
@@ -96,7 +96,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -106,7 +106,7 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -122,12 +122,12 @@
                   </a-radio-group>
                   <a-row v-if="instanceConfig==='g'">
                     <a-col :span="4">CPU使用量:</a-col>
-                    <a-col :span="5"><a-input v-model="gCpu" /></a-col>
+                    <a-col :span="5"><a-input v-model="chooseCpu" /></a-col>
                     <a-col :span="2" style="padding-left:1%">核</a-col>
                   </a-row>
                   <a-row v-if="instanceConfig==='g'">
                     <a-col :span="4">服务内存使用量:</a-col>
-                    <a-col :span="5"><a-input v-model="gMem" /></a-col>
+                    <a-col :span="5"><a-input v-model="chooseMem" /></a-col>
                     <a-col :span="2" style="padding-left:1%">M</a-col>
                   </a-row>
                 </a-form-item>
@@ -154,7 +154,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -164,7 +164,7 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -174,7 +174,7 @@
                   label="当前镜像"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="imageTag" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -184,7 +184,7 @@
                   label="升级到版本"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="nowTag"/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -194,9 +194,8 @@
                   label="版本选择"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-select showSearch allowClear>
-                    <a-select-option value="test-456987">test-456987</a-select-option>
-                    <a-select-option value="test-879654">test-879654</a-select-option>
+                  <a-select showSearch allowClear v-model="updateTag">
+                    <a-select-option v-for="item in imageTagArra" :key="item" :value="item">{{ item }}</a-select-option>
                   </a-select>
                 </a-form-item>
               </a-col>
@@ -207,7 +206,7 @@
                   label="升级间隔"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="timeSpace"/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -232,7 +231,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -242,7 +241,7 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -277,7 +276,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -287,7 +286,7 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -545,6 +544,7 @@ import { getWebttyInfo } from '@/api/service'
 import 'xterm/dist/xterm.css'
 import Terminal from '@/utils/Xterm'
 import { clearInterval, setInterval } from 'timers'
+import registryFetch from '@/api/registry'
 const DetailListItem = DetailList.Item
 
 export default {
@@ -557,8 +557,6 @@ export default {
   },
   mixins: [mixinDevice],
   data () {
-    var name = this.$route.params.name
-    console.log(name)
     return {
       timer: null,
       activeTabKey: '1',
@@ -598,15 +596,22 @@ export default {
           }
         ],
         active: () => {
-          console.log('激活tab' + this.activeTabKey)
           return this.activeTabKey
         },
         callback: (key) => {
-          console.log('点击tab：' + key)
           this.activeTabKey = key
         }
       },
-      clusterName: name,
+      clusterName: '',
+      serviceName: '',
+      replicas: 0,
+      replicasMax: 1,
+      replicasMin: 1,
+      imageTag: '',
+      nowTag: '',
+      updateTag: '',
+      imageTagArra: [],
+      timeSpace: 10,
       showWebttyPanel: true,
       showChart: false,
       serviceDetail: {},
@@ -659,7 +664,7 @@ export default {
       // 配置
       instanceConfig: 'a',
       instanceConfigArra: [
-        { id: 'a', title: 'S', cpu: 0.5, mem: 1 },
+        { id: 'a', title: 'S', cpu: 1, mem: 1 },
         { id: 'b', title: 'M', cpu: 1, mem: 2 },
         { id: 'c', title: 'L', cpu: 2, mem: 4 },
         { id: 'd', title: 'XL', cpu: 2, mem: 8 },
@@ -671,7 +676,7 @@ export default {
       gCpu: '',
       gMem: '',
 
-      chooseCpu: '0.5',
+      chooseCpu: '1',
       chooseMem: '1024',
 
       inputValue: '',
@@ -711,19 +716,14 @@ export default {
     }
   },
   created () {
-    this.showWebttyPanel = false
-    this.getServiceDetail()
+    const self = this
+    self.showWebttyPanel = false
+    self.getServiceDetail()
   },
   mounted () {
-    if (this.timer) {
-      clearInterval(this.timer)
-    } else {
-      this.timer = setInterval(() => {
-        this.getServiceDetail()
-      }, 10000)
-    }
-    console.log(this.$route.params.name)
-    this.$nextTick(() => { this.showChart = true })
+    const self = this
+    self.addTimer()
+    self.$nextTick(() => { self.showChart = true })
   },
   destroyed () {
     clearInterval(this.timer)
@@ -759,7 +759,6 @@ export default {
       getWebttyInfo(id)
         .then(res => {
           var info = res.result
-          console.log(info)
           that.webttyInfo = info
           that.socket()
         })
@@ -773,14 +772,39 @@ export default {
       this.xterm.destroy()
     },
     getServiceDetail () {
-      var that = this
-      getServiceDetail(this.$route.params.id)
+      var self = this
+      getServiceDetail(self.$route.params.id)
         .then(res => {
-          var info = res.result
-          console.log('1111')
-          console.log(info)
-          that.serviceDetail = info
-          that.getContainers(info.AppName, info.Entname, info.ServiceName)
+          if (res.status === 200) {
+            var info = res.result
+            self.serviceDetail = info
+            // 绑定值
+            self.clusterName = self.serviceDetail.ClusterName
+            self.serviceName = self.serviceDetail.ServiceName
+            self.replicas = self.serviceDetail.Replicas
+            self.replicasMax = self.serviceDetail.ReplicasMax
+            self.replicasMin = self.serviceDetail.ReplicasMin
+            self.chooseCpu = self.serviceDetail.Cpu
+            self.chooseMem = self.serviceDetail.Memory
+            self.gCpu = self.chooseCpu
+            self.gMem = self.chooseMem / 1024
+
+            var tempConfigObj = self.instanceConfigArra.filter(item => item.cpu === self.gCpu && item.mem === self.gMem)
+            if (tempConfigObj.length <= 0) {
+              self.instanceConfig = 'g'
+            } else {
+              self.instanceConfig = tempConfigObj[0].id
+            }
+
+            self.imageTag = self.serviceDetail.ImageTag
+            const tempTagArra = self.imageTag.split(':')
+            if (tempTagArra.length >= 2) {
+              self.nowTag = tempTagArra[1]
+            }
+
+            self.getContainers(info.AppName, info.Entname, info.ServiceName)
+            self.getImageInfo()
+          }
         })
     },
     getContainers (appName, entName, serviceName) {
@@ -788,8 +812,6 @@ export default {
       getAppContainers(appName, entName, serviceName)
         .then(res => {
           var info = res.result.data
-          console.log('1111')
-          console.log(info)
           that.appContainers = info
         })
     },
@@ -842,6 +864,79 @@ export default {
       // base64 编码
       const base64Content = Buffer.from(commonContent).toString('base64')
       return base64Content
+    },
+    addTimer () {
+      const self = this
+      if (self.timer) {
+        clearInterval(self.timer)
+      } else {
+        self.timer = setInterval(() => {
+          self.getServiceDetail()
+        }, 10000)
+      }
+    },
+    getImageInfo () {
+      var self = this
+      var clusterType = 'test'
+      clusterType = self.nowTag.substring(0, self.nowTag.indexOf('-'))
+      registryFetch.getImageInfo(clusterType + '/' + self.serviceName, clusterType)
+        .then(res => {
+          const result = res.result
+          const tempTags = result.Tags
+          self.imageTagArra = tempTags.split(',')
+        })
+    }
+  },
+  watch: {
+    activeTabKey (val) {
+      const self = this
+      if (val === '1') {
+        self.timer = setInterval(() => {
+          self.getServiceDetail()
+        }, 10000)
+      } else {
+        clearInterval(self.timer)
+      }
+    },
+    instanceConfig (val) {
+      var self = this
+      var tempConfigObj = self.instanceConfigArra.find(item => item.id === val)
+      if (!tempConfigObj) {
+        self.$message.error(`不存在该系统配置`)
+      } else {
+        if (val !== 'g') {
+          self.chooseCpu = tempConfigObj.cpu
+          self.chooseMem = tempConfigObj.mem * 1024
+        }
+      }
+    },
+    gCpu (val) {
+      var self = this
+      if (val) {
+        self.chooseCpu = val
+      } else {
+        self.chooseCpu = 0
+      }
+    },
+    gMem (val) {
+      var self = this
+      if (val) {
+        self.chooseMem = val * 1024
+      } else {
+        self.chooseMem = 0
+      }
+    },
+    updateTag (val) {
+      const self = this
+      if (val) {
+        if (self.nowTag.indexOf(':') >= 0) {
+          self.nowTag = self.nowTag.substring(0, self.nowTag.indexOf(':')) + ':' + val
+        } else {
+          self.nowTag = self.nowTag + ':' + val
+        }
+      } else {
+        self.nowTag = self.nowTag.substring(0, self.nowTag.indexOf(':'))
+      }
     }
   }
 }
