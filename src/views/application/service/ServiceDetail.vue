@@ -3,9 +3,9 @@
     <!-- actions -->
     <template slot="action">
       <a-button-group style="margin-right: 4px;">
-        <a-button icon="caret-right">启动</a-button>
-        <a-button icon="pause-circle">停止</a-button>
-        <a-button icon="thunderbolt">重启</a-button>
+        <a-button icon="caret-right" @click="optionServiceHanlder(1)">启动</a-button>
+        <a-button icon="pause-circle" @click="optionServiceHanlder(2)">停止</a-button>
+        <a-button icon="thunderbolt" @click="optionServiceHanlder(3)">重启</a-button>
       </a-button-group>
     </template>
 
@@ -78,7 +78,7 @@
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="flexHandler">
                     保存
                   </a-button>
                 </a-form-item>
@@ -136,7 +136,7 @@
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('config')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -213,7 +213,7 @@
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('image')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -251,14 +251,14 @@
                   label="环境变量"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-textarea placeholder="环境变量" :rows="8"/>
+                  <a-textarea placeholder="环境变量" :rows="8" v-model="envs"/>
                   </a-textarea></a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('env')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -338,7 +338,7 @@
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('port')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -450,7 +450,7 @@
             <a-row :gutter="24">
               <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('health')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -468,7 +468,7 @@
                   label="集群名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input />
+                  <a-input v-model="clusterName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
@@ -478,14 +478,31 @@
                   label="服务名称"
                   :labelCol="{lg: {span: 3}, sm: {span: 3}}"
                   :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
-                  <a-input/>
+                  <a-input v-model="serviceName" disabled/>
                 </a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="24">
               <a-col :span="20">
+                <a-form-item
+                  label="日志路径"
+                  :labelCol="{lg: {span: 3}, sm: {span: 3}}"
+                  :wrapperCol="{lg: {span: 17}, sm: {span: 17} }">
+                  <a-textarea
+                    :rows="8"
+                    placeholder="/usr/local/tomcat/logs/
+/var/log/yum.log
+/var/log/messages
+/tmp/gc.log
+多个日志按换行填入,目录以/结尾,路径可以使用$item变量,$item为服务名称配置时需要先配置kfak地址信息,filebeat将日志输出到kafka中"
+                    v-model="logPath"/>
+                  </a-textarea></a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="24">
+              <a-col :span="20">
                 <a-form-item :wrapper-col="{ span: 12, offset: 3 }">
-                  <a-button type="primary" html-type="submit">
+                  <a-button type="primary" html-type="submit" @click="serviceUpgrade('log')">
                     保存
                   </a-button>
                 </a-form-item>
@@ -540,7 +557,7 @@ import PageLayout from '@/components/page/PageLayout'
 import DetailList from '@/components/tools/DetailList'
 import Liquid from '@/components/chart/Liquid'
 import { getServiceDetail, getAppContainers } from '@/api/application'
-import { getWebttyInfo } from '@/api/service'
+import serviceFetch from '@/api/service'
 import 'xterm/dist/xterm.css'
 import Terminal from '@/utils/Xterm'
 import { clearInterval, setInterval } from 'timers'
@@ -604,6 +621,7 @@ export default {
       },
       clusterName: '',
       serviceName: '',
+      serviceId: '',
       replicas: 0,
       replicasMax: 1,
       replicasMin: 1,
@@ -612,6 +630,8 @@ export default {
       updateTag: '',
       imageTagArra: [],
       timeSpace: 10,
+      envs: '',
+      logPath: '',
       showWebttyPanel: true,
       showChart: false,
       serviceDetail: {},
@@ -756,7 +776,7 @@ export default {
     },
     handleShowWebtty (id) {
       var that = this
-      getWebttyInfo(id)
+      serviceFetch.getWebttyInfo(id)
         .then(res => {
           var info = res.result
           that.webttyInfo = info
@@ -779,6 +799,7 @@ export default {
             var info = res.result
             self.serviceDetail = info
             // 绑定值
+            self.serviceId = self.serviceDetail.ServiceId
             self.clusterName = self.serviceDetail.ClusterName
             self.serviceName = self.serviceDetail.ServiceName
             self.replicas = self.serviceDetail.Replicas
@@ -801,6 +822,28 @@ export default {
             if (tempTagArra.length >= 2) {
               self.nowTag = tempTagArra[1]
             }
+
+            self.envs = self.serviceDetail.Envs
+            self.ports = []
+            self.ports.push(self.serviceDetail.ContainerPort)
+
+            // 健康检查
+            if (self.serviceDetail.HealthData !== '') {
+              const tempHeahthObj = JSON.parse(self.serviceDetail.HealthData)
+              self.healthType = tempHeahthObj.HealthType
+              self.healthPort = tempHeahthObj.HealthPort
+              if (self.healthType === 'HTTP') {
+                self.healthPath = tempHeahthObj.HealthPath
+              } else {
+                self.healthCmd = tempHeahthObj.HealthCmd
+              }
+              self.healthInitialDelay = tempHeahthObj.HealthInitialDelay
+              self.healthInterval = tempHeahthObj.HealthInterval
+              self.healthFaliureThreshold = tempHeahthObj.HealthFaliureThreshold
+              self.healthTimeout = tempHeahthObj.HealthTimeout
+            }
+
+            self.logPath = self.serviceDetail.LogPath
 
             self.getContainers(info.AppName, info.Entname, info.ServiceName)
             self.getImageInfo()
@@ -884,6 +927,106 @@ export default {
           const result = res.result
           const tempTags = result.Tags
           self.imageTagArra = tempTags.split(',')
+        })
+    },
+    optionService (replicas, start) {
+      const self = this
+      return new Promise((resolve, reject) => {
+        serviceFetch.serviceOption(self.serviceId, replicas, start)
+          .then(res => {
+            resolve(res)
+            if (res.status) {
+              self.$notification['success']({
+                message: '成功通知',
+                description: res.data
+              })
+            } else {
+              self.$notification['error']({
+                message: '错误通知',
+                description: res.data
+              })
+            }
+          })
+      })
+    },
+    async optionServiceHanlder (type) {
+      const self = this
+      if (type === 1) {
+        await self.optionService(0, 1)
+      } else if (type === 2) {
+        await self.optionService(0, 0)
+      } else if (type === 3) {
+        await self.optionService(0, 0)
+        await self.optionService(0, 1)
+      }
+    },
+    flexHandler () {
+      const self = this
+      self.optionService(1, 0)
+    },
+    serviceUpgrade (type) {
+      const self = this
+      let param = {}
+      if (type === 'config') {
+        param = {
+          UpdateType: type,
+          Mem: Number(self.chooseCpu),
+          Cpu: parseFloat(self.chooseCpu)
+        }
+      } else if (type === 'image') {
+        param = {
+          UpdateType: type,
+          Version: self.nowTag,
+          MinReady: Number(self.timeSpace)
+        }
+      } else if (type === 'env') {
+        param = {
+          UpdateType: type,
+          Env: self.envs
+        }
+      } else if (type === 'port') {
+        param = {
+          UpdateType: type,
+          Port: self.ports[0]
+        }
+      } else if (type === 'heath') {
+        var tempObj = {
+          'HealthType': self.healthType,
+          'HealthPort': self.healthPort,
+          'HealthInterval': self.healthInterval,
+          'HealthInitialDelay': self.healthInitialDelay,
+          'HealthFaliureThreshold': self.healthFaliureThreshold,
+          'HealthTimeout': self.healthTimeout
+        }
+        if (self.healthType === 'HTTP') {
+          tempObj['HealthPath'] = self.healthPath
+        } else if (self.healthType === 'CMD') {
+          tempObj['HealthCmd'] = self.healthCmd
+        }
+        param = {
+          UpdateType: type,
+          healthData: JSON.parse(tempObj)
+        }
+      } else if (type === 'log') {
+        param = {
+          UpdateType: type,
+          LogPath: self.logPath
+        }
+      }
+      serviceFetch.serviceUpdate(self.serviceId, param)
+        .then(res => {
+          if (res.status) {
+            self.$notification['success']({
+              message: '成功通知',
+              description: '服务修改成功'
+            })
+            self.$router.push(`/application/servicedetail/${self.serviceId}`)
+          } else {
+            self.$notification['error']({
+              message: '错误通知',
+              description: res.message
+            })
+          }
         })
     }
   },
