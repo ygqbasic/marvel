@@ -17,5 +17,29 @@ export default {
       method: 'get',
       data: param
     })
+  },
+  getRegistryServer (keywords) {
+    let url = `/registry/server`
+    if (keywords !== '') {
+      url += `?ClusterName=${keywords}`
+    }
+    return axios({
+      url: url,
+      method: 'get'
+    })
+  },
+  getRegistryGroupList (pageNo, pageSize) {
+    const url = `/registry/group?pageNo=${pageNo}&pageSize=${pageSize}`
+    return axios({
+      url: url,
+      method: 'get'
+    })
+  },
+  getHarborRegistryList (pageNo, pageSize, groupName, clusterName) {
+    const url = `/registry/group/images?pageNo=${pageNo}&pageSize=${pageSize}&GroupName=${groupName}&ClusterName=${clusterName}`
+    return axios({
+      url: url,
+      method: 'get'
+    })
   }
 }

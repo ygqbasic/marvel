@@ -64,6 +64,12 @@ export const asyncRouterMap = [
             name: 'configlist',
             component: () => import('@/views/application/config/ConfigList'),
             meta: { title: '应用配置', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/registry/list',
+            name: 'registrylist',
+            component: () => import('@/views/application/registry/RegistryList'),
+            meta: { title: '镜像管理', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
