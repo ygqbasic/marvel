@@ -118,25 +118,37 @@ export default {
       }],
       tableLoading: false,
       // 镜像内容 暴露给父组件
-      imageDataInfo: {}
+      imageDataInfo: {},
+
+      routeAppName: '',
+      routeClusterName: '',
+      routeEntname: ''
     }
   },
   created () {
     var self = this
-    self.getEnts()
-    if (self.preDataInfo.step1 !== null && self.preDataInfo.step1 !== undefined && JSON.stringify(self.preDataInfo.step1) !== '{}') {
-
+    if (self.$route.params.appName) {
+      self.routeAppName = self.$route.params.appName
     }
+    if (self.$route.params.clusterName) {
+      self.routeClusterName = self.$route.params.clusterName
+    }
+    if (self.$route.params.entname) {
+      self.routeEntname = self.$route.params.entname
+    }
+    if (self.preDataInfo.step1 !== null && self.preDataInfo.step1 !== undefined && JSON.stringify(self.preDataInfo.step1) !== '{}') {
+      self.routeEntname = self.preDataInfo.step1.selectEnt
+      self.routeClusterName = self.preDataInfo.step1.selectedcluster
+    }
+    self.getEnts()
   },
   methods: {
     nextStep () {
       var self = this
-      // var tempObj = {
-      //   'step1': self.imageDataInfo
-      // }
       var outputObjJson = self.preDataInfo
       self.imageDataInfo['selectEnt'] = self.selectEnt
       self.imageDataInfo['selectedcluster'] = self.selectedcluster
+      self.imageDataInfo['routeAppName'] = self.routeAppName
       outputObjJson['step1'] = self.imageDataInfo
       self.$emit('nextStep', outputObjJson)
     },
@@ -150,6 +162,13 @@ export default {
           })
           that.ents = info
           that.selectEnt = info.Entname
+          if (that.routeEntname !== '') {
+            that.selectEnt = that.routeEntname
+            that.handleEntChange(that.selectEnt)
+          }
+          if (that.routeClusterName !== '') {
+            that.selectedcluster = that.routeClusterName
+          }
         })
     },
     handleEntChange (value) {

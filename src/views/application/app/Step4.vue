@@ -52,10 +52,15 @@
           <a-col :span="6">配置项目</a-col>
           <a-col :span="5">操作</a-col>
         </a-row>
+        <a-row v-for="(item,index) in configData" :key="index">
+          <a-col :span="6">{{ item.ContainerPath }}</a-col>
+          <a-col :span="6">{{ item.DataName }}</a-col>
+          <a-col :span="5"><a-button class="editable-add-btn" @click="delConfigMap(index)">移除</a-button></a-col>
+        </a-row>
         <a-row>
           <a-col :span="6"></a-col>
           <a-col :span="6"></a-col>
-          <a-col :span="5"><a-button class="editable-add-btn" @click="handleAddLabel">添加</a-button></a-col>
+          <a-col :span="5"><a-button class="editable-add-btn" @click="showAddConfigMaps">添加</a-button></a-col>
         </a-row>
       </a-form-item>
       <a-form-item
@@ -94,11 +99,62 @@ evn=prod"
         </a-row>
       </a-form-item>
     </a-form>
+    <a-drawer
+      title="选择配置文件"
+      :width="720"
+      @close="onClose"
+      :visible="maskShow"
+      :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
+    >
+      <a-form :form="form" layout="vertical" hideRequiredMark>
+        <a-row :gutter="24">
+          <a-col :span="20">
+            <a-form-item label="容器文件路径">
+              <a-input placeholder="配置文件挂载到容器的路径，比如/home/data/config" v-model="configRoot"/>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="20">
+            <a-form-item label="配置文件组选择">
+              <a-select showSearch v-model="configGroupId" allowClear @change="configGroupChange">
+                <a-select-option v-for="item in configTypes" :key="item.ConfigureId" :value="item.ConfigureId">{{ item.ConfigureName }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="20">
+            <a-form-item label="配置文件选择">
+              <a-select showSearch v-model="configMapData" allowClear>
+                <a-select-option v-for="item in configMap" :key="item.DataId" :value="item.DataName">{{ item.DataName }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+      <div
+        :style="{
+          position: 'absolute',
+          left: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+        }"
+      >
+        <a-button :style="{marginRight: '8px'}" @click="onClose">取消</a-button>
+        <a-button type="primary" :loading="btnLoading" @click="addConfigHandler">保存</a-button>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
 <script>
 import { Result } from '@/components'
+import configFetch from '@/api/configure.js'
 
 export default {
   name: 'Step4',
@@ -130,7 +186,18 @@ export default {
       envs: '',
       logPath: '',
       configData: [],
-      finishDataInfo: {}
+      finishDataInfo: {},
+
+      form: this.$form.createForm(this),
+      configTypes: [],
+      configGroupId: '',
+      configGroupName: '',
+      configMap: [],
+      configMapData: '',
+      configRoot: '',
+
+      btnLoading: false,
+      maskShow: false
     }
   },
   created () {
@@ -143,6 +210,7 @@ export default {
       self.logPath = self.preDataInfo.step4.LogPath
       self.configData = self.preDataInfo.step4.ConfigData
     }
+    self.queryConfigName()
   },
   methods: {
     finish () {
@@ -155,12 +223,6 @@ export default {
         'LogPath': self.logPath,
         'ConfigData': self.configData
       }
-      // var tempObj = {
-      //   'step1': self.healthDataInfo.step1,
-      //   'step2': self.healthDataInfo.step2,
-      //   'step3': self.healthDataInfo.step3,
-      //   'step4': self.finishDataInfo
-      // }
       var outputObjJson = self.preDataInfo
       outputObjJson['step4'] = self.finishDataInfo
       self.$emit('finish', outputObjJson)
@@ -182,21 +244,81 @@ export default {
       outputObjJson['step4'] = self.finishDataInfo
       self.$emit('prevStep', outputObjJson)
     },
-    handleAddLabel () {
-      var l = this.serviceLabels.find(c => c.key === this.serviceLabelTemp.key)
-      if (l) {
-        console.log('不能添加重复标签')
-        this.$error({
-          title: '标签重复',
-          content: `不能输入重复的标签，标签：[${l.key}]`
+    queryConfigName () {
+      const self = this
+      configFetch.QueryConfigName(self.preDataInfo.step1.selectedcluster, self.preDataInfo.step1.selectEnt)
+        .then(res => {
+          if (res.status === 200) {
+            self.configTypes = res.result
+          }
         })
-      } else {
-        this.serviceLabels.push({ key: this.serviceLabelTemp.key, value: this.serviceLabelTemp.value, isReject: this.serviceLabelTemp.isReject })
+    },
+    configGroupChange () {
+      const self = this
+      configFetch.getConfigItems(self.configGroupId)
+        .then(res => {
+          if (res.status === 200) {
+            self.configMap = [...res.result]
+          }
+        })
+    },
+    onClose () {
+      const self = this
+      self.maskShow = false
+    },
+    showAddConfigMaps () {
+      const self = this
+      self.maskShow = true
+    },
+    addConfigHandler () {
+      const self = this
+      if (self.configRoot === '') {
+        self.$message.error('请输入容器文件路径')
+        return false
+      }
+      if (self.configGroupId === '') {
+        self.$message.error('请选择配置文件组')
+        return false
+      }
+      if (self.configGroupId === '') {
+        self.$message.error('请选择配置文件')
+        return false
+      }
+      const tempObj = {
+        'ContainerPath': self.configRoot,
+        'DataName': self.configGroupName,
+        'DataId': self.configMapData
+      }
+
+      self.configData.push(tempObj)
+
+      self.maskShow = false
+    },
+    delConfigMap (index) {
+      var self = this
+      self.configData.splice(index, 1)
+    }
+  },
+  watch: {
+    configGroupId (val) {
+      const self = this
+      if (val !== '') {
+        var tempArra = self.configTypes.filter(t => t.ConfigureId === val)
+        if (tempArra.length <= 0) {
+          self.configGroupName = ''
+        } else {
+          self.configGroupName = tempArra[0].ConfigureName
+        }
       }
     },
-    handleRemoveLabel (k) {
-      console.log(k)
-      this.serviceLabels = this.serviceLabels.filter(t => t.key !== k)
+    maskShow (val) {
+      const self = this
+      if (!val) {
+        self.configGroupId = ''
+        self.configGroupName = ''
+        self.configRoot = ''
+        self.configMapData = ''
+      }
     }
   }
 }

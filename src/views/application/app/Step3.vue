@@ -261,7 +261,7 @@ export default {
         'HealthFaliureThreshold': self.healthData[0].HealthFaliureThreshold,
         'HealthTimeout': self.healthData[0].HealthTimeout
       }
-      if (self.healthData[0].healthType === 'HTTP') {
+      if (self.healthData[0].HealthType === 'HTTP') {
         tempObj['HealthPath'] = self.healthData[0].HealthPath
       } else if (self.healthData[0].healthType === 'CMD') {
         tempObj['HealthCmd'] = self.healthData[0].HealthCmd

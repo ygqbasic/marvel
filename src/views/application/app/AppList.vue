@@ -188,21 +188,22 @@ export default {
   },
   data () {
     return {
-      // description: '段落示意：蚂蚁金服务设计平台 ant.design，用最小的工作量，无缝接入蚂蚁金服生态， 提供跨越设计与开发的体验解决方案。',
-      // linkList: [
-      //   { icon: 'rocket', href: '#', title: '快速开始' },
-      //   { icon: 'info-circle-o', href: '#', title: '产品简介' },
-      //   { icon: 'file-text', href: '#', title: '产品文档' }
-      // ],
-      // extraImage: 'https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png',
+      timer: null,
       form: this.$form.createForm(this),
       visible: false,
       appList: [null]
     }
   },
   created () {
-    console.log('get app list')
     this.getAppList()
+  },
+  destroyed () {
+    const self = this
+    clearInterval(self.timer)
+  },
+  mounted () {
+    const self = this
+    self.addTimer()
   },
   methods: {
     showDetail (pam) {
@@ -219,15 +220,24 @@ export default {
     },
     getAppList () {
       var that = this
-      console.log('get app list')
       getAppList()
         .then(res => {
           var cs = res.result
-          console.log(cs)
+          that.appList = [null]
           for (let i = 0; i < cs.length; i++) {
             that.appList.push(cs[i])
           }
         })
+    },
+    addTimer () {
+      const self = this
+      if (self.timer) {
+        clearInterval(self.timer)
+      } else {
+        self.timer = setInterval(() => {
+          self.getAppList()
+        }, 3000)
+      }
     }
   }
 }

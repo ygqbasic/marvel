@@ -84,20 +84,30 @@ module.exports = {
       }
     }
   },
-
   devServer: {
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8910',
-        ws: false,
-        changeOrigin: true
-      },
       '/gateway': {
         target: 'https://www.easy-mock.com/mock/5b7bce071f130e5b7fe8cd7d/antd-pro',
         ws: false,
         changeOrigin: true,
         pathRewrite: {
           '^/gateway': '/api'
+        }
+      },
+      '/api-server': {
+        target: 'http://127.0.0.1:8910',
+        ws: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api-server': ''
+        }
+      },
+      '/oauth-center': {
+        target: 'http://139.217.235.17',
+        ws: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/oauth-center': '/oauth-center'
         }
       }
     }

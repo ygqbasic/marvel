@@ -13,5 +13,11 @@ export default {
       url: `/configures/data/${configId}`,
       method: 'get'
     })
+  },
+  QueryConfigName (clusterName, entName) {
+    return axios({
+      url: `/configures/name?ClusterName=${clusterName}&Entname=${entName}`,
+      method: 'get'
+    })
   }
 }

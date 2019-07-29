@@ -35,6 +35,9 @@
                 <a-menu-item v-show="item.Status===0">
                   <a href="javascript:void(0)" @click="reviewTenantConfirm(item.TenantId)">审核</a>
                 </a-menu-item>
+                <a-menu-item v-show="item.Status===1">
+                  <a href="javascript:void(0)" @click="showTenantClients(item.TenantCode)">环境</a>
+                </a-menu-item>
               </a-menu>
               <a>更多
                 <a-icon type="down"/>
@@ -311,7 +314,7 @@ export default {
         self.btnLoading = false
         return false
       }
-      if (self.tenantId !== '') {
+      if (self.tenantId === '') {
         self.addTenant()
       } else {
         self.modifyTenant()
@@ -425,6 +428,15 @@ export default {
     handleChange ({ fileList }) {
       const self = this
       self.fileList = fileList
+    },
+    showTenantClients (tenantId) {
+      const self = this
+      self.$router.push({
+        path: '/auth/tenants/clients',
+        query: {
+          code: tenantId
+        }
+      })
     }
   },
   watch: {

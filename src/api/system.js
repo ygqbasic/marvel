@@ -68,5 +68,3 @@ export function saveService (parameter) {
     data: parameter
   })
 }
-
-

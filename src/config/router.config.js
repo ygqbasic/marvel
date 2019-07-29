@@ -64,6 +64,12 @@ export const asyncRouterMap = [
             name: 'configlist',
             component: () => import('@/views/application/config/ConfigList'),
             meta: { title: '应用配置', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/application/registry/list',
+            name: 'registrylist',
+            component: () => import('@/views/application/registry/RegistryList'),
+            meta: { title: '镜像管理', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
       },
@@ -203,6 +209,20 @@ export const asyncRouterMap = [
             name: 'servicedetail',
             hidden: true,
             component: () => import('@/views/application/service/ServiceDetail'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/auth/tenants/clients',
+            name: 'clients',
+            hidden: true,
+            component: () => import('@/views/authcenter/TenantClientList'),
+            meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/auth/tenants/accounts',
+            name: 'accounts',
+            hidden: true,
+            component: () => import('@/views/authcenter/TenantAccountList'),
             meta: { title: '服务详情', keepAlive: false, permission: [ 'dashboard' ] }
           }
         ]
