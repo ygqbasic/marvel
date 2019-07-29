@@ -323,10 +323,6 @@ export default {
   created () {
     console.log('222')
     this.getAppDetail()
-  },
-  mounted () {
-    console.log(this.$route.params.name)
-    this.$nextTick(() => { this.showChart = true })
     if (this.timer) {
       clearInterval(this.timer)
     } else {
@@ -335,8 +331,14 @@ export default {
       }, 30000)
     }
   },
-  destroyed () {
-    clearInterval(this.timer)
+  mounted () {
+    console.log(this.$route.params.name)
+    this.$nextTick(() => { this.showChart = true })
+  },
+  beforeDestroy () {
+    if (this.timer) {
+      clearInterval(this.timer)
+    }
   },
   methods: {
     goServiceDetail (sid) {
