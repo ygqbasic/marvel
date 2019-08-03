@@ -970,7 +970,7 @@ export default {
       if (type === 'config') {
         param = {
           UpdateType: type,
-          Mem: Number(self.chooseCpu),
+          Mem: Number(self.chooseMem),
           Cpu: parseFloat(self.chooseCpu)
         }
       } else if (type === 'image') {
