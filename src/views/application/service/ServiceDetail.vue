@@ -1072,11 +1072,12 @@ export default {
     updateTag (val) {
       const self = this
       if (val) {
-        if (self.nowTag.indexOf(':') >= 0) {
-          self.nowTag = self.nowTag.substring(0, self.nowTag.indexOf(':')) + ':' + val
-        } else {
-          self.nowTag = self.nowTag + ':' + val
-        }
+        self.nowTag = val
+        // if (self.nowTag.indexOf(':') >= 0) {
+        //   self.nowTag = self.nowTag.substring(0, self.nowTag.indexOf(':')) + ':' + val
+        // } else {
+        //   self.nowTag = self.nowTag + ':' + val
+        // }
       } else {
         self.nowTag = self.nowTag.substring(0, self.nowTag.indexOf(':'))
       }

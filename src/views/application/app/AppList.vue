@@ -181,6 +181,7 @@
 <script>
 import { getAppList } from '@/api/application'
 import AppCardInfo from './components/AppCardInfo'
+import registryFetch from '@/api/registry'
 export default {
   name: 'AppList',
   components: {
@@ -196,6 +197,7 @@ export default {
   },
   created () {
     this.getAppList()
+    this.initHarborRegistryList()
   },
   destroyed () {
     const self = this
@@ -214,6 +216,13 @@ export default {
     },
     showDrawer () {
       this.visible = true
+    },
+    initHarborRegistryList () {
+      registryFetch.getHarborRegistryList(1, 50, 'test', 'AKS')
+        .then(res => {
+          if (res.status === 200) {
+          }
+        })
     },
     onClose () {
       this.visible = false

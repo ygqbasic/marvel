@@ -103,7 +103,7 @@ module.exports = {
         }
       },
       '/oauth-center': {
-        target: 'http://139.217.235.17',
+        target: 'http://40.73.59.153:8000',
         ws: false,
         changeOrigin: true,
         pathRewrite: {
